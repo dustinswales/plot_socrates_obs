@@ -61,6 +61,8 @@ def plot_obs(fileObs, out_dir):
     DBARD_RWIO_avg = np.nanmean(flight_data.variables["DBARD_RWIO"][:,:],axis=1)
     DBARPIP_RWII_avg = np.nanmean(flight_data.variables["DBARPIP_RWII"][:,:],axis=1)
     DBARU_LWII_avg = np.nanmean(flight_data.variables["DBARU_LWII"][:,:],axis=1)
+
+#plotting the time series plots using the socrates netcdf
     fig = plt.figure(figsize=(16,16))
     #Ploting THETA
     plt.subplot(4,4,1)
@@ -85,7 +87,7 @@ def plot_obs(fileObs, out_dir):
     plt.plot(flight_data.variables["Time"][:], plwcc_avg,  color='blue')
     plt.title(flight_data["PLWCC"].long_name)
     plt.ylabel('('+flight_data["PLWCC"].units+')')
-
+    plt.xlim(95500,105000)
     #Plotting CONCN
     plt.subplot(4,4,5)
     plt.plot(flight_data.variables["Time"][:], concn_avg,  color='blue')
