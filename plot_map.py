@@ -97,6 +97,7 @@ ax.add_feature(c_10m,zorder=4)
 flight_data = Dataset(flight_data_path)
 ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
 ax.plot(corrected_lon,data["Lat"],zorder=9,label='Radiosonde Path', color='g')
+ax.scatter(corrected_lon[0],data["Lat"][0],zorder=9,label='Launch Point', color='r')
 ax.legend()
 plt.show()
 # Save figures                                                                                                                                                  
