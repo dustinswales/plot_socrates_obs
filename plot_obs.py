@@ -8,7 +8,8 @@ import argparse
 # Command line arguments
 ###############################################################################
 parser = argparse.ArgumentParser()
-parser.add_argument('-f', '--file', help='file to plot', required=True)
+parser.add_argument('-f', '--file_obs', help='file to plot', required=True)
+parser.add_argument('-fu', '--file_ufs', help='file to plot (UFS)', required=True)
 parser.add_argument('-d', '--out_dir', help='location for output', default="./")
 
 ###############################################################################
@@ -17,15 +18,15 @@ parser.add_argument('-d', '--out_dir', help='location for output', default="./")
 def parse_arguments():
     """Parse command line arguments"""
     args    = parser.parse_args()
-    fileObs = args.file
+    fileObs = args.file_obs
+    fileUfs = args.file_ufs
     out_dir = args.out_dir
+    return(fileObs,fileUfs,out_dir)
     
-    return(fileObs,out_dir)
-        
-def plot_obs(fileObs, out_dir):
+def plot_obs(fileObs,fileUfs, out_dir):
     # Add some aircraft observations
     flight_data = Dataset(fileObs)
-
+    ufs_data = Data(fileUfs)
     # Loop over all fields in file, display their attributes.
     count = 0
     for var in flight_data.variables.keys():
@@ -179,8 +180,8 @@ def plot_obs(fileObs, out_dir):
 #
 ########################################################################################    
 def main():
-    (fileObs, out_dir) = parse_arguments()
-    status = plot_obs(fileObs, out_dir)
+    (fileObs, fileUfs, out_dir) = parse_arguments()
+    status = plot_obs(fileObs,fileUfs, out_dir)
 
 if __name__ == '__main__':
     main()
