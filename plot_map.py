@@ -49,10 +49,9 @@ readfile.close()
 print(data["Lon"])
 
 corrected_lon=[]
-for data in data["Lon"]:
-	corrected_lon.append(180-data)
+for lon in data["Lon"]:
+	corrected_lon.append(180-lon)
 print(corrected_lon)
-print(data["Lat"])
 # We read the data into a python dictionary called data. The keys for this dictionary are stored in var_names
 print(var_names)
 
