@@ -22,11 +22,31 @@ def parse_arguments():
     fileUfs = args.file_ufs
     out_dir = args.out_dir
     return(fileObs,fileUfs,out_dir)
+
+def read_ufs(fileUFS):
+    data = Dataset(fileUFS)
     
-def plot_obs(fileObs,fileUfs, out_dir):
+    # Loop over all fields in file, display their attributes.
+    count = 0
+    for var in data.variables.keys():
+        print(count,var,data[var].long_name,data[var].shape)
+        count = count + 1
+    # end for
+
+    # Pull out data from netcdf file, datafile, and populate python dictionary, ufs_data
+    lon = data.variables["lon"]
+    lat = data.variables["lat"]
+    ufs_data = {}
+    
+    # DJS: Kill script here while testing. Eventually we will return
+    exit()
+    return ufs_data
+
+def plot_obs(fileObs, fileUfs, out_dir):
     # Add some aircraft observations
     flight_data = Dataset(fileObs)
-    ufs_data = Data(fileUfs)
+    ufs_data    = read_ufs(fileUfs)
+    
     # Loop over all fields in file, display their attributes.
     count = 0
     for var in flight_data.variables.keys():
@@ -40,9 +60,11 @@ def plot_obs(fileObs,fileUfs, out_dir):
     y = flight_data["THETA"][0,:]
     ny = len(y)
 
-    # Data sanitation (TODO. Remove missing values in data)
-    #theta = np.zeros(shape=(nx,ny))
-           
+    # Get UFS data for observational locations.
+    # DJS: Need to pass in lon/lat from flight_data.
+    # DJS: Then in read_ufs, find nearest UFS point, store it in dictionary, and pass out.
+    ufs_data    = read_ufs(fileUfs)
+    
     # Compute average y
     theta_avg = np.nanmean(flight_data.variables["THETA"][:,:],axis=1)
     thetae_avg = np.nanmean(flight_data.variables["THETAE"][:,:],axis=1)
@@ -181,7 +203,7 @@ def plot_obs(fileObs,fileUfs, out_dir):
 ########################################################################################    
 def main():
     (fileObs, fileUfs, out_dir) = parse_arguments()
-    status = plot_obs(fileObs,fileUfs, out_dir)
+    status   = plot_obs(fileObs, fileUfs, out_dir)
 
 if __name__ == '__main__':
     main()
