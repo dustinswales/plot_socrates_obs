@@ -41,22 +41,25 @@ for index, line in enumerate(lines):
                 print(f"Sample data line from first entry: {line.strip().split()}")
 
             # Add data to dictonary
-            for ind, entry in enumerate(line.strip().split()):
-                varid = var_names[ind]
-                data[varid].append(float(entry))
-            
+            if '9999' in line:
+                print('found bunk point')
+            else:
+               for ind, entry in enumerate(line.strip().split()):
+                   varid = var_names[ind]
+                   data[varid].append(float(entry))
+               # end for
+            # end if
 readfile.close()
-print(data["Lon"])
 
 corrected_lon=[]
 for lon in data["Lon"]:
-	corrected_lon.append(180-lon)
+	corrected_lon.append(lon)
 print(corrected_lon)
 # We read the data into a python dictionary called data. The keys for this dictionary are stored in var_names
 print(var_names)
 
 # Map dimensions                                                                                                                                                
-map_west  = 90
+map_west  = 60
 map_east  = 180
 map_south = -70
 map_north = -30
@@ -96,8 +99,9 @@ ax.add_feature(c_10m,zorder=4)
 # Add some aircraft observations
 flight_data = Dataset(flight_data_path)
 ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
-ax.plot(corrected_lon,data["Lat"],zorder=9,label='Radiosonde Path', color='g')
-ax.scatter(corrected_lon[0],data["Lat"][0],zorder=9,label='Launch Point', color='r')
+ax.plot(corrected_lon,data["Lat"],transform=ccrs.PlateCarree(),zorder=9,label='Radiosonde Path', color='g')
+ax.scatter(corrected_lon[0],data["Lat"][0],transform=ccrs.PlateCarree(),zorder=9,label='Launch Point', color='r',s=50)
+ax.scatter(147,-42.9,zorder=100, transform=ccrs.PlateCarree(),label='hobart',color='m',s=100)
 ax.legend()
 plt.show()
 # Save figures                                                                                                                                                  
