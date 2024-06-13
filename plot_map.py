@@ -7,9 +7,9 @@ from cartopy.feature import ShapelyFeature, NaturalEarthFeature
 from netCDF4 import Dataset
 
 print(f"Python version: {sys.version}")
-flight_data_path = '/Users/lilyjohnston/socrates/RF09H.20180204.225000_070500.PNI.nc'
+flight_data_path = '/Users/lilyjohnston/socrates/plot_socrates_obs/flight_data/RF09H.20180204.225000_070500.PNI.nc'
 
-fdir = '/Users/lilyjohnston/socrates/plot_socrates_obs'
+fdir = '/Users/lilyjohnston/socrates/plot_socrates_obs/radiosonde_data'
 fname = 'SOCRATES_HighRes_20180205_2330.txt'
 
 header_lines_ignore = 12
@@ -19,36 +19,31 @@ readfile = open(fdir + '/' + fname, 'r')
 lines = readfile.readlines()
 
 for index, line in enumerate(lines):
-    if index < header_lines_ignore:
-        print(f"Ignoring header line: {line.strip()}")
-    else:
-        # This is the line that has variable name information
-        if index == header_lines_ignore:
-            var_names = line.strip().split()
-
-            # Set up place to store data
-            data = {}
-            for var in var_names:
-                data[var] = []
-            print(f"Variables names: {var_names}")
-
+	if index < header_lines_ignore:
+		print(f"Ignoring header line: {line.strip()}")
+	else:
+		# This is the line that has variable name information
+		if index == header_lines_ignore:
+			var_names = line.strip().split()
+			# Set up place to store data
+			data = {}
+			for var in var_names:
+				data[var] = []
+			print(f"Variables names: {var_names}")
         # Continue reading lines
-        if index < data_start_index:
-            print(f"Ignoring header line: {line.strip()}")
-        else:
-            # This is the first line with actual data
-            if index == data_start_index:
-                print(f"Sample data line from first entry: {line.strip().split()}")
-
-            # Add data to dictonary
-            if '9999' in line:
-                print('found bunk point')
-            else:
-               for ind, entry in enumerate(line.strip().split()):
-                   varid = var_names[ind]
-                   data[varid].append(float(entry))
-               # end for
-            # end if
+	if index < data_start_index:
+		print(f"Ignoring header line: {line.strip()}")
+	else:
+		# This is the first line with actual data
+		if index == data_start_index:
+			print(f"Sample data line from first entry: {line.strip().split()}")
+		# Add data to dictonary
+		if '9999' in line:
+			print('found bunk point')
+		else:
+			for ind, entry in enumerate(line.strip().split()):
+				varid = var_names[ind]
+				data[varid].append(float(entry))
 readfile.close()
 
 corrected_lon=[]
@@ -100,8 +95,7 @@ ax.add_feature(c_10m,zorder=4)
 flight_data = Dataset(flight_data_path)
 ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
 ax.plot(corrected_lon,data["Lat"],transform=ccrs.PlateCarree(),zorder=9,label='Radiosonde Path', color='g')
-ax.scatter(corrected_lon[0],data["Lat"][0],transform=ccrs.PlateCarree(),zorder=9,label='Launch Point', color='r',s=50)
-ax.scatter(147,-42.9,zorder=100, transform=ccrs.PlateCarree(),label='hobart',color='m',s=100)
+ax.scatter(corrected_lon[0],data["Lat"][0],transform=ccrs.PlateCarree(),zorder=9,label='Launch Point', color='r',s=10)
 ax.legend()
 plt.show()
 # Save figures                                                                                                                                                  
