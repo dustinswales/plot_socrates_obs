@@ -2,7 +2,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-fdir = '/Users/lilyjohnston/socrates/plot_socrates_obs'
+fdir = '/Users/lilyjohnston/socrates/plot_socrates_obs/radiosonde_data'
 fname = 'SOCRATES_HighRes_20180205_2330.txt'
 
 header_lines_ignore = 12
@@ -24,8 +24,7 @@ for index, line in enumerate(lines):
             for var in var_names:
                 data[var] = []
             print(f"Variables names: {var_names}")
-
-        # Continue reading lines
+ # Continue reading lines
         if index < data_start_index:
             print(f"Ignoring header line: {line.strip()}")
         else:
@@ -34,10 +33,14 @@ for index, line in enumerate(lines):
                 print(f"Sample data line from first entry: {line.strip().split()}")
 
             # Add data to dictonary
-            for ind, entry in enumerate(line.strip().split()):
-                varid = var_names[ind]
-                data[varid].append(float(entry))
-            
+            if '9999' in line:
+                print('found bunk point')
+            else:
+               for ind, entry in enumerate(line.strip().split()):
+                   varid = var_names[ind]
+                   data[varid].append(float(entry))
+               # end for
+            # end if
 readfile.close()
 
 # We read the data into a python dictionary called data. The keys for this dictionary are stored in var_names
@@ -69,6 +72,8 @@ ax1.set_title("Wind Profile")
 ax1.set_ylabel('Pressure (mb)')
 ax1.set_xlabel('Wind speed (m/s)')
 ax1.set_yscale('log')
+ax1.set_ylim(1000,100)
+ax1.set_xlim(0,50)
 ax2=ax1.twiny()
 ax2.plot(data["dir"][:],data["Press"], label='Wind Direction (°)', color='g')
 ax2.set_xlabel('Wind Direction (°)')
@@ -84,11 +89,14 @@ plt.show()
 
 # Horizontal and verticle wind
 fig,ax =plt.subplots()
-ax.plot(data["Ucmp"][:],data["Alt"],label='Horizontal Wind (m/s)', color='blue')
-ax.plot(data["Vcmp"][:],data["Alt"],label='Vertical Wind (m/s)', color='g')
+ax.plot(data["Ucmp"][:],data["Press"],label='U Wind (m/s)', color='blue')
+ax.plot(data["Vcmp"][:],data["Press"],label='V Wind (m/s)', color='g')
+ax.axvline(x=0,color='r',linestyle='--')
 ax.set_title("Wind Profile")
 ax.set_ylabel('Pressure (mb)')
+ax.set_ylim(1000,100)
 ax.set_xlabel('Wind speed (m/s)')
+ax.set_xlim(-40,40)
 ax.set_yscale('log')
 ax.legend()
 plt.savefig('u&v_profile.png')
