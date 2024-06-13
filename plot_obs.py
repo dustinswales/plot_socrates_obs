@@ -23,6 +23,21 @@ def parse_arguments():
     out_dir = args.out_dir
     return(fileObs,fileUfs,out_dir)
 
+def calculate_closest_distances(lon,lat,obs_lon,obs_lat,time):
+	for t_idx in enumerate(time):
+		nlon, nlat=lon.shape
+		nobs=len(obs_lon)
+		min_distance=np.inf
+		min_index= None
+		for ij in range(nlon):
+			for ik in range(nlat):
+				distance = np.sqrt((lon[ij,ik]-obs_lon[ij,ik])**2+(lat[ij,jk]-obs_lat[ij,ik])**2)
+				if distance<min_distance:
+					min_distance=distance
+					min_indices((ij,ik))
+		return min_distance, min_index
+min_dist,(min_ij,min_ik)=compute_min_distances_and_indices(lon,lat,obs_lon,obs_lat)
+			
 def read_ufs(fileUFS):
     data = Dataset(fileUFS)
     
