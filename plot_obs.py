@@ -26,47 +26,51 @@ def parse_arguments():
 def calculate_closest_distances(lon,lat,obs_lon,obs_lat):
     lon_index = []
     lat_index = []
-    for t_idx in range(0,len(obs_lon)):
+    for t_idx in range(len(obs_lon)):
         nlon, nlat=lon.shape
-        nobs=len(obs_lon)
+        #nobs=len(obs_lon)
         min_distance=np.inf
         min_index= None
         distance = np.empty((nlon,nlat)) #DJS double check if this doesn't work, you need to create 2D empty array for storing the distances.
         for ij in range(nlon):
             for ik in range(nlat):
-                distance[ij,ik] = np.sqrt((lon[ij,ik]-obs_lon[t_idx])**2+(lat[ij,ik]-obs_lat[t_idx])**2)
-        [ilon,ilat]=np.where(distance==np.min(distance))
-        lon_index.append(ilon)
-        lat_index.append(ilat)
-        if np.any(distance[ilon,ilat]!=np.min(distance)):
-             print("O no!!!!")
-             exit()
-            
-    return (lon_index, lat_index)
+                if -180<=lon[ij,ik]<=360 and -180<=lat[ij,ik]<=360:
+                    distance[ij,ik] = np.sqrt((lon[ij,ik]-obs_lon[t_idx])**2+(lat[ij,ik]-obs_lat[t_idx])**2)
+                exit
+                # end if
+        #print(f"Distance matrix for obs point {t_idx}:")
+        #print(distance)
+        min_distance=np.min(distance)
+        ilon,ilat=np.where(distance==np.min(distance))
+        if ilon.size==0 or ilat.size==0:
+            continue
+        print(f"indices for min distance (ilon,ilat) for {t_idx}: ({ilon},{ilat})")
+        lon_index.append(ilon[0])
+        lat_index.append(ilat[0])    
+    return lon_index, lat_index
 
 #DJS: Bring in observational lon/lat as new args.
 def read_ufs(fileUfs,obs_lon,obs_lat):
     data = Dataset(fileUfs)
     
     # Loop over all fields in file, display their attributes.
-    count = 0
-    for var in data.variables.keys():
-        print(count,var,data[var].long_name,data[var].shape)
-        count = count + 1
+    #count = 0
+    #for var in data.variables.keys():
+        #print(count,var,data[var].long_name,data[var].shape)
+        #count = count + 1
     # end for
 
     # Pull out data from netcdf file, datafile, and populate python dictionary, ufs_data
-    lon = data.variables["lon"]
-    lat = data.variables["lat"]
+    lon = data.variables["lon"][:]
+    lat = data.variables["lat"][:]
     #DJS call calculate_closest_distances(), using lon, lat and the obs lon and lat that youy bring in
-    [ilon,ilat]=calculate_closest_distances(lon,lat,obs_lon,obs_lat)
+    ilon,ilat=calculate_closest_distances(lon,lat,obs_lon,obs_lat)
     T=[]
-    for i in range(0,len(ilon)):
+    for i in range(len(ilon)):
         T.append(data.variables["Temp"][ilon[i],ilat[i]])
     ufs_data = {}
     ufs_data["Temp"]=T
     # DJS: Kill script here while testing. Eventually we will return
-    exit()
     return ufs_data
 
 def plot_obs(fileObs, fileUfs, out_dir):
@@ -75,10 +79,10 @@ def plot_obs(fileObs, fileUfs, out_dir):
     ufs_data = read_ufs(fileUfs,flight_data.variables['LON'][:], flight_data.variables['LAT'][:])
     
     # Loop over all fields in file, display their attributes.
-    count = 0
-    for var in flight_data.variables.keys():
-        print(count,var,flight_data[var].long_name,flight_data[var].shape)
-        count = count + 1
+    #count = 0
+    #for var in flight_data.variables.keys():
+        #print(count,var,flight_data[var].long_name,flight_data[var].shape)
+        #count = count + 1
     # end for
 
     # Store some dimensions for use later.
@@ -233,4 +237,6 @@ def main():
     status   = plot_obs(fileObs, fileUfs, out_dir)
 
 if __name__ == '__main__':
-    main()
+    fileObs,fileUfs,out_dir=parse_arguments()
+    plot_obs(fileObs,fileUfs,out_dir)
+    #main()
