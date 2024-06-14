@@ -24,20 +24,27 @@ def parse_arguments():
     return(fileObs,fileUfs,out_dir)
 
 def calculate_closest_distances(lon,lat,obs_lon,obs_lat,time):
-	for t_idx in enumerate(time):
-		nlon, nlat=lon.shape
-		nobs=len(obs_lon)
-		min_distance=np.inf
-		min_index= None
-		for ij in range(nlon):
-			for ik in range(nlat):
-				distance = np.sqrt((lon[ij,ik]-obs_lon[ij,ik])**2+(lat[ij,jk]-obs_lat[ij,ik])**2)
-				if distance<min_distance:
-					min_distance=distance
-					min_indices((ij,ik))
-		return min_distance, min_index
-min_dist,(min_ij,min_ik)=compute_min_distances_and_indices(lon,lat,obs_lon,obs_lat)
-			
+    lon_index = []
+    lat_index = []
+    for t_idx in enumerate(time):
+        nlon, nlat=lon.shape
+        nobs=len(obs_lon)
+        min_distance=np.inf
+        min_index= None
+        distance = np.empty((nlon,nlat)) #DJS double check if this doesn't work, you need to create 2D empty array for storing the distances.
+        for ij in range(nlon):
+            for ik in range(nlat):
+                distance[ij,ik] = np.sqrt((lon[ij,ik]-obs_lon[ij,ik])**2+(lat[ij,jk]-obs_lat[ij,ik])**2)
+        [ilon,ilat]=np.where(distance==np.min(distance))
+        lon_index.append(ilon)
+        lat_index.append(ilat)
+        if distance[ilon,ilat]!=min(distances):
+            print("O no!!!!")
+            exit()
+            
+    return (lon_index, lat_index)
+
+#DJS: Bring in observational lon/lat as new args.
 def read_ufs(fileUFS):
     data = Dataset(fileUFS)
     
@@ -51,8 +58,13 @@ def read_ufs(fileUFS):
     # Pull out data from netcdf file, datafile, and populate python dictionary, ufs_data
     lon = data.variables["lon"]
     lat = data.variables["lat"]
+    #DJS call calculate_closest_distances(), using lon, lat and the obs lon and lat that youy bring in
+    [ilon,ilat]=calculate_closest_distances(lon,lat,obs_lon,obs_lat,time)
+    T=[]
+    for i in range(0,len(ilon)):
+        T.append(data.variables["Temp"][ilon[i],ilat[i]])
     ufs_data = {}
-    
+    ufs_data["Temp"]=T
     # DJS: Kill script here while testing. Eventually we will return
     exit()
     return ufs_data
