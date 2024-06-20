@@ -1,5 +1,4 @@
 import sys
-
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset
 import pandas as pd
@@ -7,13 +6,13 @@ import numpy as np
 
 print(f"Python version: {sys.version}")
 
-flight_data_path = '/Users/anders.jensen/Projects/socrates/observations/aircraft_state_obs/RF09H.20180204.225000_070500.PNI.nc'
+flight_data_path = '/scratch2/BMC/wrfruc/jensen/socrates/observations/aircraft_state_obs/RF09H.20180204.225000_070500.PNI.nc'
 
 # Add some aircraft observations
 flight_data = Dataset(flight_data_path)
 
 # Create dataframe
-d = {'Time': flight_data.variables['Time'][:], 'Lon': flight_data.variables['LON'][:], 'LWC': np.mean(flight_data.variables['PLWCC'][:], axis=1)}
+d = {'Time': flight_data.variables['Time'][:], 'Lon': flight_data.variables['LON'][:], 'LWC': np.mean(flight_data.variables['PLWCC'][:], axis=1),'T':np.mean(flight_data.variables['THETA'][:], axis=1)}
 df = pd.DataFrame(data=d)
 
 # Time variable is seconds since 2018-02-04 00:00:00 +0000"
@@ -33,6 +32,7 @@ last_obs_time = df.iloc[-1]['current_time']
 print(f"first observation time: {first_obs_time}, last observation time: {last_obs_time}")
 
 avg_lwc = []
+avg_t=[]
 middle_time = []
 
 iterate_time0 = first_obs_time
@@ -46,23 +46,21 @@ while iterate_time0 < last_obs_time:
 
     # Subset the dataframe to include our time window
     df_tmp = df.loc[(df['current_time'] >= iterate_time0) & (df['current_time'] < iterate_time1)]
-    
+    avg_t.append(df_tmp['T'].mean())
     avg_lwc.append(df_tmp['LWC'].mean())
     
     iterate_time0 += pd.to_timedelta(average_time_sec, unit='s')
     iterate_time1 = iterate_time0 + pd.to_timedelta(average_time_sec, unit='s')
 
-df_avg = pd.DataFrame({'Time': middle_time, 'LWC': avg_lwc})
-
+df_avg = pd.DataFrame({'Time': middle_time, 'LWC_Average': avg_lwc, 'T_Average':avg_t})
+print(df_avg)
 # Plotting
-fig, ax = plt.subplots(1,1, figsize=(12,4))
-
-ax.plot(df['current_time'], df['LWC'], label='1-second data')
-ax.set_xlabel('Time [UTC]')
-ax.set_ylabel(r'LWC [g m$^{-3}$]')
-ax.set_ylim((0,2))
-
-ax.scatter(df_avg['Time'], df_avg['LWC'], label='2-minute data', color='C1', s=10, zorder=2)
-
+fig, ax = plt.subplots(2,1, figsize=(12,4))
+ax[0,0].plot(df['current_time'], df['LWC'], label='1-second data')
+ax[0,0].set_xlabel('Time [UTC]')
+ax[0,0].set_ylabel(r'LWC [g m$^{-3}$]')
+ax[0,0].set_ylim((0,2))
+ax[0,0].scatter(df_avg['Time'], df_avg['LWC_Average'], label='2-minute data', color='C1', s=10, zorder=2)
 ax.legend()
 fig.savefig('avg_data.pdf', dpi=50, bbox_inches='tight')
+plt.show()
