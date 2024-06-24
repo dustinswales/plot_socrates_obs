@@ -1,58 +1,73 @@
 import sys
-
+import os
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from cartopy.feature import ShapelyFeature, NaturalEarthFeature
 from netCDF4 import Dataset
 
-print(f"Python version: {sys.version}")
-flight_data_path = '/Users/lilyjohnston/socrates/plot_socrates_obs/flight_data/RF09H.20180204.225000_070500.PNI.nc'
-
-fdir = '/Users/lilyjohnston/socrates/plot_socrates_obs/radiosonde_data'
-fname = 'SOCRATES_HighRes_20180205_2330.txt'
-
+flight_data_path = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/flight_data/RF09H.20180204.225000_070500.PNI.nc'
+fdir = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/soundings/'
+filenames = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
+             'SOCRATES_HighRes_20180204_1219_ISS3.txt',
+             'SOCRATES_HighRes_20180204_1715_Hobart.txt',
+             'SOCRATES_HighRes_20180204_2141_Invercargill.txt',
+             'SOCRATES_HighRes_20180204_2315_Casey.txt',
+             'SOCRATES_HighRes_20180204_2316_Hobart.txt',
+             'SOCRATES_HighRes_20180204_1120_Hobart.txt',
+             'SOCRATES_HighRes_20180204_1600_ISS3.txt',  
+             'SOCRATES_HighRes_20180204_1907_ISS3.txt',
+             'SOCRATES_HighRes_20180204_2207_ISS3.txt',
+             'SOCRATES_HighRes_20180204_2315_Melbourne.txt',
+             'SOCRATES_HighRes_20180204_2328_Macquarie.txt'
+]
+release_site_info = {
+    'SOCRATES_HighRes_20180204_1115_Melbourne.txt': 'Type1/SiteA',
+    'SOCRATES_HighRes_20180204_1219_ISS3.txt': 'Type2/SiteB',
+    'SOCRATES_HighRes_20180204_1715_Hobart.txt': 'Type3/SiteC',
+    'SOCRATES_HighRes_20180204_2141_Invercargill.txt':'Type4/SiteD',
+    'SOCRATES_HighRes_20180204_2315_Casey.txt':'Type5/SiteE',
+    'SOCRATES_HighRes_20180204_2316_Hobart.txt':'Type6/SiteF',
+    'SOCRATES_HighRes_20180204_1120_Hobart.txt':'Type7/SiteG',
+    'SOCRATES_HighRes_20180204_1600_ISS3.txt':'Type8/SiteH',
+    'SOCRATES_HighRes_20180204_1907_ISS3.txt':'Type9/SiteI',
+    'SOCRATES_HighRes_20180204_2207_ISS3.txt':'Type10/SiteJ',
+    'SOCRATES_HighRes_20180204_2315_Melbourne.txt':'Type11/SiteK',
+    'SOCRATES_HighRes_20180204_2328_Macquarie.txt':'Type12/SiteL'
+}
 header_lines_ignore = 12
 data_start_index= 15
 
-readfile = open(fdir + '/' + fname, 'r')
-lines = readfile.readlines()
-
-for index, line in enumerate(lines):
-	if index < header_lines_ignore:
-		print(f"Ignoring header line: {line.strip()}")
-	else:
-		# This is the line that has variable name information
-		if index == header_lines_ignore:
-			var_names = line.strip().split()
-			# Set up place to store data
-			data = {}
-			for var in var_names:
-				data[var] = []
-			print(f"Variables names: {var_names}")
-        # Continue reading lines
-	if index < data_start_index:
-		print(f"Ignoring header line: {line.strip()}")
-	else:
-		# This is the first line with actual data
-		if index == data_start_index:
-			print(f"Sample data line from first entry: {line.strip().split()}")
-		# Add data to dictonary
-		if '9999' in line:
-			print('found bunk point')
-		else:
-			for ind, entry in enumerate(line.strip().split()):
-				varid = var_names[ind]
-				data[varid].append(float(entry))
-readfile.close()
-
-corrected_lon=[]
-for lon in data["Lon"]:
-	corrected_lon.append(lon)
-print(corrected_lon)
-# We read the data into a python dictionary called data. The keys for this dictionary are stored in var_names
-print(var_names)
-
+def process_file(filename):
+    filepath = os.path.join(fdir,filename)
+    with open(filepath, 'r') as readfile:
+        lines = readfile.readlines()
+    data = {}
+    var_names = []
+    for index, line in enumerate(lines):
+        if index < header_lines_ignore:
+            continue
+        elif  index == header_lines_ignore:
+            var_names = line.strip().split()
+            # Set up place to store data
+            data = {var: [] for var in var_names}
+        elif index >= data_start_index:
+            if '9999' not in line:
+                entries = line.strip().split()
+                if len(entries) == len(var_names):
+                    for ind, entry in enumerate(entries):
+                        varid = var_names[ind]
+                        try:
+                            data[varid].append(float(entry))
+                        except ValueError:
+                            print(f"skipping non-numeric value in {varid}: {entry}")
+    if "Lon" in data and "Lat" in data:
+        corrected_lon = [lon for lon in data["Lon"] if lon != 9999]
+        lat = [lat for lat in data["Lat"] if lat != 9999]
+        if corrected_lon and lat:
+            return corrected_lon, lat, release_site_info
+    return None, None
+colormap= plt.colormaps['tab10']
 # Map dimensions                                                                                                                                                
 map_west  = 60
 map_east  = 180
@@ -93,10 +108,19 @@ ax.add_feature(c_10m,zorder=4)
 
 # Add some aircraft observations
 flight_data = Dataset(flight_data_path)
-ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
-ax.plot(corrected_lon,data["Lat"],transform=ccrs.PlateCarree(),zorder=9,label='Radiosonde Path', color='g')
-ax.scatter(corrected_lon[0],data["Lat"][0],transform=ccrs.PlateCarree(),zorder=9,label='Launch Point', color='r',s=10)
-ax.legend()
+flight_path = ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
+handles, labels = [flight_path], ['Flight Path']
+for i, fname in enumerate(filenames):
+    corrected_lon, lat = process_file(fname)
+    if corrected_lon and lat:
+        color = colormap(i % colormap.N)
+        if not release_site_info:
+            release_site_info = release_site_info.get(fname,f'Site {i+1}')
+        radiosonde_path = ax.plot(corrected_lon, lat, transform=ccrs.PlateCarree(),zorder=9,label=release_site_info,color=color)
+        ax.scatter(corrected_lon[0],lat[0],transform=ccrs.PlateCarree(), color=color,s=50)
+        handles.append(radiosonde_path)
+        labels.append(release_site_info)
+ax.legend(handles, labels, loc='upper left')
 plt.show()
 # Save figures                                                                                                                                                  
 # Larger dpi is higher resolution (try dpi=300 if too fuzzy)                                                                                                    
