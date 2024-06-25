@@ -21,20 +21,6 @@ filenames = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
              'SOCRATES_HighRes_20180204_2315_Melbourne.txt',
              'SOCRATES_HighRes_20180204_2328_Macquarie.txt'
 ]
-release_site_info = {
-    'SOCRATES_HighRes_20180204_1115_Melbourne.txt': 'Type1/SiteA',
-    'SOCRATES_HighRes_20180204_1219_ISS3.txt': 'Type2/SiteB',
-    'SOCRATES_HighRes_20180204_1715_Hobart.txt': 'Type3/SiteC',
-    'SOCRATES_HighRes_20180204_2141_Invercargill.txt':'Type4/SiteD',
-    'SOCRATES_HighRes_20180204_2315_Casey.txt':'Type5/SiteE',
-    'SOCRATES_HighRes_20180204_2316_Hobart.txt':'Type6/SiteF',
-    'SOCRATES_HighRes_20180204_1120_Hobart.txt':'Type7/SiteG',
-    'SOCRATES_HighRes_20180204_1600_ISS3.txt':'Type8/SiteH',
-    'SOCRATES_HighRes_20180204_1907_ISS3.txt':'Type9/SiteI',
-    'SOCRATES_HighRes_20180204_2207_ISS3.txt':'Type10/SiteJ',
-    'SOCRATES_HighRes_20180204_2315_Melbourne.txt':'Type11/SiteK',
-    'SOCRATES_HighRes_20180204_2328_Macquarie.txt':'Type12/SiteL'
-}
 header_lines_ignore = 12
 data_start_index= 15
 
@@ -65,7 +51,7 @@ def process_file(filename):
         corrected_lon = [lon for lon in data["Lon"] if lon != 9999]
         lat = [lat for lat in data["Lat"] if lat != 9999]
         if corrected_lon and lat:
-            return corrected_lon, lat, release_site_info
+            return corrected_lon, lat
     return None, None
 colormap= plt.colormaps['tab10']
 # Map dimensions                                                                                                                                                
@@ -108,19 +94,14 @@ ax.add_feature(c_10m,zorder=4)
 
 # Add some aircraft observations
 flight_data = Dataset(flight_data_path)
-flight_path = ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
-handles, labels = [flight_path], ['Flight Path']
+ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
 for i, fname in enumerate(filenames):
     corrected_lon, lat = process_file(fname)
     if corrected_lon and lat:
         color = colormap(i % colormap.N)
-        if not release_site_info:
-            release_site_info = release_site_info.get(fname,f'Site {i+1}')
-        radiosonde_path = ax.plot(corrected_lon, lat, transform=ccrs.PlateCarree(),zorder=9,label=release_site_info,color=color)
-        ax.scatter(corrected_lon[0],lat[0],transform=ccrs.PlateCarree(), color=color,s=50)
-        handles.append(radiosonde_path)
-        labels.append(release_site_info)
-ax.legend(handles, labels, loc='upper left')
+        ax.plot(corrected_lon, lat, transform=ccrs.PlateCarree(),zorder=9,label=f'Radiosonde Path {i+1}',color=color)
+        ax.scatter(corrected_lon[0],lat[0],transform=ccrs.PlateCarree(),zorder=9, color=color,s=50)
+ax.legend(loc='upper left')
 plt.show()
 # Save figures                                                                                                                                                  
 # Larger dpi is higher resolution (try dpi=300 if too fuzzy)                                                                                                    
