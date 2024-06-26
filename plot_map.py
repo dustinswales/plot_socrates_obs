@@ -111,6 +111,7 @@ for i, fname in enumerate(filenames):
         #color = colormap(i % colormap.N)
         ax.plot(corrected_lon, lat, transform=ccrs.PlateCarree(),zorder=9,label=siteName,color=colors[i])
         ax.scatter(corrected_lon[0],lat[0],transform=ccrs.PlateCarree(),zorder=9, color=colors[i],s=50)
+ax.set_title("Radiosonde and Flight Launch Points and Paths")
 ax.legend(loc='upper left')
 plt.show()
 # Save figures                                                                                                                                                  
