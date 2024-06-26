@@ -68,7 +68,6 @@ def plot_data(data, filename):
 
     # Wind speed and direction
     ax1 = axes[1]
-    fig,ax1 =plt.subplots()
     ax1.plot(data["spd"][:],data["Press"],label='Wind Speed (m/s)', color='blue')
     ax1.set_title("Wind Profile")
     ax1.set_ylabel('Pressure (mb)')
