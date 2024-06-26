@@ -3,51 +3,49 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fdir = '/Users/lilyjohnston/socrates/plot_socrates_obs/radiosonde_data'
-fname = 'SOCRATES_HighRes_20180205_2330.txt'
+filenames = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
+             'SOCRATES_HighRes_20180204_1219_ISS3.txt',
+             'SOCRATES_HighRes_20180204_1715_Hobart.txt',
+             'SOCRATES_HighRes_20180204_2141_Invercargill.txt',
+             'SOCRATES_HighRes_20180204_2315_Casey.txt',
+             'SOCRATES_HighRes_20180204_2316_Hobart.txt',
+             'SOCRATES_HighRes_20180204_1120_Hobart.txt',
+             'SOCRATES_HighRes_20180204_1600_ISS3.txt',  
+             'SOCRATES_HighRes_20180204_1907_ISS3.txt',
+             'SOCRATES_HighRes_20180204_2207_ISS3.txt',
+             'SOCRATES_HighRes_20180204_2315_Melbourne.txt',
+             'SOCRATES_HighRes_20180204_2328_Macquarie.txt'
+]
 
 header_lines_ignore = 12
 data_start_index= 15
 
-readfile = open(fdir + '/' + fname, 'r')
-lines = readfile.readlines()
-
-for index, line in enumerate(lines):
-    if index < header_lines_ignore:
-        print(f"Ignoring header line: {line.strip()}")
-    else:
-        # This is the line that has variable name information
-        if index == header_lines_ignore:
+def process_file(filename):
+    filepath = os.path.join(fdir,filename)
+    with open(filepath, 'r') as readfile:
+        lines = readfile.readlines()
+    data = {}
+    var_names = []
+    for index, line in enumerate(lines):
+        if index < header_lines_ignore:
+            continue
+        elif  index == header_lines_ignore:
             var_names = line.strip().split()
-
             # Set up place to store data
-            data = {}
-            for var in var_names:
-                data[var] = []
-            print(f"Variables names: {var_names}")
- # Continue reading lines
-        if index < data_start_index:
-            print(f"Ignoring header line: {line.strip()}")
-        else:
-            # This is the first line with actual data
-            if index == data_start_index:
-                print(f"Sample data line from first entry: {line.strip().split()}")
+            data = {var: [] for var in var_names}
+        elif index >= data_start_index:
+            if '9999' not in line:
+                entries = line.strip().split()
+                if len(entries) == len(var_names):
+                    for ind, entry in enumerate(entries):
+                        varid = var_names[ind]
+                        try:
+                            data[varid].append(float(entry))
+                        except ValueError:
+                            print(f"skipping non-numeric value in {varid}: {entry}")
+    return None, None
 
-            # Add data to dictonary
-            if '9999' in line:
-                print('found bunk point')
-            else:
-               for ind, entry in enumerate(line.strip().split()):
-                   varid = var_names[ind]
-                   data[varid].append(float(entry))
-               # end for
-            # end if
-readfile.close()
 
-# We read the data into a python dictionary called data. The keys for this dictionary are stored in var_names
-print(var_names)
-
-#print(data['Temp'])
-#print(data['Alt'])
 
 fig,ax1 =plt.subplots() 
 ax1.plot(data["Temp"][:],data["Press"],label='Temperature (°C)', color='blue')
