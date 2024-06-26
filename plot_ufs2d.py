@@ -68,7 +68,12 @@ for ifile in range(0,len(fcast_hr)):
         ax = fig.add_subplot(1, 1, 1)
 
         # Make contour contourf
-
+        contourf_plot = ax.contourf(lon, lat, varPlt, levels=plot_levels, cmap=cmap_seq)
+        ax.set_title(var_dict[ivar]["name"] + "at" + fcast_hr[ifile] + "hours")
+        ax.set_xlabel('Longitude')
+        ax.set_ylabel('Latitude')
         # Save
         print(fileOUT)
         fig.savefig(fileOUT)
+        plt.show()
+        plt.close(fig)
