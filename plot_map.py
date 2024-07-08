@@ -8,8 +8,10 @@ from cartopy.feature import ShapelyFeature, NaturalEarthFeature
 from netCDF4 import Dataset
 import numpy as np
 
-flight_data_path = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/flight_data/RF09H.20180204.225000_070500.PNI.nc'
-fdir = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/soundings/'
+#flight_data_path = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/flight_data/RF09H.20180204.225000_070500.PNI.nc'
+#fdir = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/soundings/'
+flight_data_path = 'flight_data/RF09H.20180204.225000_070500.PNI.nc'
+fdir = 'radiosonde_data/'
 filenames = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
              'SOCRATES_HighRes_20180204_1219_ISS3.txt',
              'SOCRATES_HighRes_20180204_1715_Hobart.txt',

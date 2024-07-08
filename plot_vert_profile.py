@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-fdir = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/soundings/'
-output_dir = '/home/Lily.Johnston/plot_socrates_obs/figures'
+#fdir = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/soundings/'
+#output_dir = '/home/Lily.Johnston/plot_socrates_obs/figures'
+fdir = 'radiosonde_data/'
+output_dir = 'figures/'
 filenames = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
              'SOCRATES_HighRes_20180204_1219_ISS3.txt',
              'SOCRATES_HighRes_20180204_1715_Hobart.txt',
