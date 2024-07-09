@@ -114,16 +114,16 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                     plt.title(SCM_BL[var].description)
                     plt.plot(x1, y1,  color='blue')
                     if plot_diff: plt.plot(x2, y2,  color='black')
-                    plt.ylabel('('+SCM_BL[var].units+')')
+                    plt.ylabel(f'({units})')
                     plt.xlabel('(hours)')
                     
                     # Difference (Baseline-MRT)
                     if plot_diff:
                         plt.subplot(2,1,2)
-                        plt.title("Difference (blue - black)")
+                        plt.title("Difference in {long_name} (blue - black)")
                         plt.plot(x1, y1 - y2,  color='red')
                         plt.plot(x1, np.zeros(len(y1)), color='grey',linestyle='dashed')
-                        plt.ylabel('('+SCM_BL[var].units+')')
+                        plt.ylabel(f'({units})')
                         plt.xlabel('(hours)')
                     # Save figure
                     fileOUT = 'scm.' + var +'.png'
@@ -155,13 +155,16 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                 if (np.size(x1) > 1):
                     fig = plt.figure(figsize=(13,10))
                     if file_rt is not None: plt.subplot(3,1,1)
+                    long_name = SCM_BL[var].getncattr('long_name') if 'long_name' in SCM_BL[var].ncattrs() else var
+                    units = SCM_BL[var].units
+                    plt.title(long_name)
                     plt.contourf(x1, y1, z1, 20, cmap='YlGnBu')
                     plt.ylim(1000,200)
                     plt.xlim(0,np.max(x1))
                     plt.ylabel('(Pa)')
                     plt.xlabel('(hours)')
                     cbr = plt.colorbar()
-                    cbr.set_label('('+SCM_BL[var].units+')')
+                    cbr.set_label(f'{long_name} ({units})')
                     if file_rt is not None:
                         # SCM RTs
                         plt.subplot(3,1,2)
@@ -171,26 +174,26 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                         plt.ylabel('(Pa)')
                         plt.xlabel('(hours)')
                         cbr = plt.colorbar()
-                        cbr.set_label('('+SCM_RT[var].units+')')
+                        cbr.set_label(f'{var} ({SCM_BL[var].units})')
                     # end if
                     # Only plot differences if requested, and only if they are non-zero.
                     if plot_diff:
                         dz = z1-z2
                         if (np.count_nonzero(dz) > 0):
                             plt.subplot(3,1,3)
-                            plt.title("Difference (top - middle)", fontsize=8)
+                            plt.title("Difference in {long_name} (top - middle)", fontsize=8)
                             plt.contourf(x2, y2, dz, 20, cmap='bwr')
                             plt.ylim(1000,200)
                             plt.ylabel('(Pa)')
                             plt.xlabel('(hours)')
                             cbr = plt.colorbar()
-                            cbr.set_label('('+SCM_RT[var].units+')')
+                            cbr.set_label(f'{long_name} ({units})')
                         # end if (no differences exist)
                     # end if     (plot differences)
                     # Save figure
                     fileOUT = 'scm.' + var +'.png'
-                    plt.show()
                     plt.savefig(fileOUT)
+                    plt.show()
                     plot_files.append(fileOUT)
                 # end if (Have enought pts to plot?)
             # end if     (fields exist?)
