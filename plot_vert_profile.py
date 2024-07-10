@@ -25,7 +25,7 @@ filenames_scm = ['n001_melbourne.nc',
                  'n002_iss3.nc',
                  'n000_hobart.nc',
                  'n005_invercargill.nc',
-                 'n007_casey.nc'
+                 'n007_casey.nc',
                  'n000_hobart.nc',
                  'n000_hobart.nc',
                  'n003_iss3.nc',
@@ -39,11 +39,11 @@ data_start_index= 15
 
 # Constants for Clausius-Clapeyron equation
 E0 = 6.11 # kPa
-L_Rv = 5423 # K
-T0 = 273 # K
+L_Rv = 5423 #K
+T0 = 273.15 #K
 
 def calculate_saturation_vapor_pressure(T):
-    return E0 * np.exp(L_Rv * (1/T0 - 1/T))
+    return E0 * np.exp(L_Rv * (1/T0 - 1/(T+273.15)))
 def calculate_relative_humidity(qv, T, P):
     Es = calculate_saturation_vapor_pressure(T)
     E = qv * P / (0.622 + qv) # Actual vapor pressure
@@ -53,16 +53,7 @@ def calculate_dewpoint_temperature(RH, T):
     Es = calculate_saturation_vapor_pressure(T)
     E = RH / 100 * Es
     E[E<=0] = 1e-10
-    """
-    for ij in range(len(E)):
-        if np.any(Es[ij] > 0):
-            E[ij] = E[ij]
-        else:
-            E[ij] = 1e-10
-        # end if
-    # end for
-    """
-    return 1 / (1/T0 - (np.log(E/E0) / L_Rv))
+    return 1 / (1/T0 - (np.log(E/E0) / L_Rv))-273.15
 def calculate_wind_speed(u, v):
     return np.sqrt(u**2 + v**2)
 def calculate_wind_direction(u, v):
@@ -101,7 +92,7 @@ def process_file_scm(fdir, filename):
     with nc.Dataset(filepath) as ds:
         T = ds.variables['T'][:] # Temperature in K
         P = ds.variables['pres'][:] # Pressure in kPa
-        qv = ds.variables['qv_force_tend'][:] # Specific humidity
+        qv = ds.variables['qv'][:] # Specific humidity
         u = ds.variables['u'][:] 
         v = ds.variables['v'][:] 
         RH = calculate_relative_humidity(qv, T, P)
@@ -126,8 +117,8 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm):
     ax1 = axes[0]
     ax1.plot(data_obs["Temp"][:],data_obs["Press"],label='Temperature OBS (°C)', color='blue')
     ax1.plot(data_obs["Dewpt"][:],data_obs["Press"],label='Dewpoint OBS (°C)', color='g')
-    ax1.plot(data_scm["Temp"][:],data_obs["Press"],label='Temperature SCM (°C)', color='blue', linestyle='--')
-    ax1.plot(data_scm["Dewpt"][:],data_scm["Press"],label='Dewpoint SCM (°C)', color='g', linestyle='--')
+    ax1.plot(data_scm["Temp"][0,:,0],data_scm["Press"][0,:,0],label='Temperature SCM (°C)', color='blue', linestyle='--')
+    ax1.plot(data_scm["Dewpt"][0,:,0],data_scm["Press"][0,:,0],label='Dewpoint SCM (°C)', color='g', linestyle='--')
     ax1.set_title(f"Temperature & Dewpoint Profile\nOBS: {filename_obs}\nSCM: {filename_scm}")
     ax1.set_ylabel('Pressure (mb)')
     ax1.set_xlabel('Temperature (°C)')
@@ -142,7 +133,7 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm):
     # Wind speed and direction
     ax2 = axes[1]
     ax2.plot(data_obs["spd"][:],data_obs["Press"],label='Wind Speed OBS (m/s)', color='blue')
-    ax2.plot(data_scm["spd"][:], data_scm["Press"], label='Wind Speed SCM (m/s)', color='blue', linestyle='--')
+    ax2.plot(data_scm["spd"][0,:,0], data_scm["Press"][0,:,0], label='Wind Speed SCM (m/s)', color='blue', linestyle='--')
     ax2.set_ylabel('Pressure (mb)')
     ax2.set_xlabel('Wind speed (m/s)')
     ax2.set_yscale('log')
@@ -151,10 +142,10 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm):
     ax2.invert_yaxis()
     ax3=ax2.twiny()
     ax3.plot(data_obs["dir"][:],data_obs["Press"], label='Wind Direction OBS (°)', color='g')
-    ax3.plot(data_scm["dir"][:], data_scm["Press"], label='Wind Direction SCM (°)', color='g', linestyle='--')
+    ax3.plot(data_scm["dir"][0,:,0], data_scm["Press"][0,:,0], label='Wind Direction SCM (°)', color='g', linestyle='--')
     ax3.set_xlabel('Wind Direction (°)')
     ax3.set_xlim(0,360)
-    ax2.set_title(f"Wind Speed and Direction Profile\nOBS: {filename_obs}\nSCM: {filename_scm}")
+    ax2.set_title(f"Wind Speed and Direction Profile")
     handles1,labels1=ax2.get_legend_handles_labels()
     handles2,labels2=ax3.get_legend_handles_labels()
     handles=handles1+handles2
@@ -165,8 +156,8 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm):
     ax4 = axes[2]
     ax4.plot(data_obs["Ucmp"][:],data_obs["Press"],label='U Wind OBS (m/s)', color='blue')
     ax4.plot(data_obs["Vcmp"][:],data_obs["Press"],label='V Wind OBS (m/s)', color='g')
-    ax4.plot(data_scm["Ucmp"][:], data_scm["Press"], label='U Wind SCM (m/s)', color='blue', linestyle='--')
-    ax4.plot(data_scm["Vcmp"][:], data_scm["Press"], label='V Wind SCM (m/s)', color='g', linestyle='--')
+    ax4.plot(data_scm["Ucmp"][0,:,0], data_scm["Press"][0,:,0], label='U Wind SCM (m/s)', color='blue', linestyle='--')
+    ax4.plot(data_scm["Vcmp"][0,:,0], data_scm["Press"][0,:,0], label='V Wind SCM (m/s)', color='g', linestyle='--')
     ax4.axvline(x=0,color='r',linestyle='--')
     ax4.set_title("Wind Profile")
     ax4.set_ylabel('Pressure (mb)')
@@ -177,7 +168,7 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm):
     ax4.legend()
 
     plt.tight_layout()
-    output_path = os.path.join(output_dir, f'{os.path.splitext(filename)[0]}_vs_{os.path.splittext(filename_scm)[0]}.png')
+    output_path = os.path.join(output_dir, f'{os.path.splitext(filename_obs)[0]}_vs_{os.path.splitext(filename_scm)[0]}.png')
     plt.savefig(output_path)
     plt.show()
     plt.close(fig)
