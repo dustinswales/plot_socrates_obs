@@ -5,9 +5,9 @@ import os
 
 #fdir = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/soundings/'
 #output_dir = '/home/Lily.Johnston/plot_socrates_obs/figures'
-fdir = 'radiosonde_data/'
+fdir_obs = 'radiosonde_data/'
 output_dir = 'figures/'
-filenames = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
+filenames_obs = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
              'SOCRATES_HighRes_20180204_1219_ISS3.txt',
              'SOCRATES_HighRes_20180204_1715_Hobart.txt',
              'SOCRATES_HighRes_20180204_2141_Invercargill.txt',
@@ -20,9 +20,23 @@ filenames = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
              'SOCRATES_HighRes_20180204_2315_Melbourne.txt',
              'SOCRATES_HighRes_20180204_2328_Macquarie.txt'
 ]
-
 header_lines_ignore = 12
 data_start_index= 15
+
+fdir_scm = 'scm_data/'
+filenames_scm = ['n001_melbourne.nc',
+                 'n002_iss3.nc',
+                 'n000_hobart.nc',
+                 'n005_invercargill.nc',
+                 'n007_casey.nc'
+                 'n000_hobart.nc',
+                 'n000_hobart.nc',
+                 'n003_iss3.nc',
+                 'n004_iss3.nc',
+                 'n006_iss3.nc',
+                 'n001_melbourne.nc',
+                 'n008_macquarie.nc'
+]
 
 def process_file(filename):
     filepath = os.path.join(fdir,filename)
