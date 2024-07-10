@@ -34,7 +34,7 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
          "du_dt_nonphys","dv_dt_pbl","dv_dt_ogwd","dv_dt_deepconv",           \
          "dv_dt_shalconv","dv_dt_phys","dv_dt_nonphys","sfc_dwn_sw",          \
          "sfc_up_sw","sfc_net_sw","sfc_dwn_lw","gflux","u10m","v10m","hpbl",  \
-         "tprcp_accum","ice_accum","snow_accum","graupel_accum",              \
+          "tprcp_accum","ice_accum","snow_accum","graupel_accum",              \
          "conv_prcp_accum","tprcp_rate_accum","ice_rate_accum",               \
          "snow_rate_accum","graupel_rate_accum","conv_prcp_rate_accum",       \
          "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp",           \
