@@ -5,7 +5,7 @@ import os
 import netCDF4 as nc
 #fdir = '/scratch1/BMC/gmtb/Dustin.Swales/Lapenta/Lily/data/OBS/soundings/'
 #output_dir = '/home/Lily.Johnston/plot_socrates_obs/figures'
-fdir_obs = 'radiosonde_data/'
+fdir_obs = '/home/Lily.Johnston/plot_socrates_obs/radiosonde_data/'
 output_dir = 'figures/'
 filenames_obs = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
              'SOCRATES_HighRes_20180204_1219_ISS3.txt',
@@ -20,7 +20,7 @@ filenames_obs = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
              'SOCRATES_HighRes_20180204_2315_Melbourne.txt',
              'SOCRATES_HighRes_20180204_2328_Macquarie.txt'
 ]
-fdir_scm = 'scm_data/'
+fdir_scm = '/home/Lily.Johnston/plot_socrates_obs/scm_data/'
 filenames_scm = ['n001_melbourne.nc',
                  'n002_iss3.nc',
                  'n000_hobart.nc',
@@ -68,12 +68,20 @@ def process_file_obs(fdir, filename):
     data = {}
     var_names = []
     for index, line in enumerate(lines):
-        if index < header_lines_ignore:
+        if index < header_lines_ignore-1:
             continue
+        elif index == header_lines_ignore-1:
+            lstamp = line[line.find(':')+1::]
         elif  index == header_lines_ignore:
             var_names = line.strip().split()
             # Set up place to store data
             data = {var: [] for var in var_names}
+            # Store launch time information.
+            data["launch_year"]   = int(lstamp[0:4])
+            data["launch_month"]  = int(lstamp[6:8])
+            data["launch_day"]    = int(lstamp[10:12])
+            data["launch_hour"]   = int(lstamp[14:16])
+            data["launch_minute"] = int(lstamp[17:19])
         elif index >= data_start_index:
             if '9999' not in line:
                 entries = line.strip().split()
@@ -84,6 +92,7 @@ def process_file_obs(fdir, filename):
                             data[varid].append(float(entry))
                         except ValueError:
                             print(f"skipping non-numeric value in {varid}: {entry}")
+
     return data
 
 def process_file_scm(fdir, filename):
@@ -91,7 +100,7 @@ def process_file_scm(fdir, filename):
     data = {}
     with nc.Dataset(filepath) as ds:
         T = ds.variables['T'][:]-273.15 # Temperature in C
-        P = ds.variables['pres'][:] # Pressure in kPa
+        P = ds.variables['pres'][:]*0.01 # Pressure from Pa to kPa
         qv = ds.variables['qv'][:] # Specific humidity
         u = ds.variables['u'][:] 
         v = ds.variables['v'][:] 
@@ -108,23 +117,36 @@ def process_file_scm(fdir, filename):
         data['Vcmp'] = v
         data['spd'] = wspd
         data['dir'] = wdir
+        # Store SCM 
+        fcst_time   = ds.variables['time_inst'][:]
+        init_year   = ds.variables['init_year'][0]
+        init_month  = ds.variables['init_month'][0]
+        init_day    = ds.variables['init_day'][0]
+        init_hour   = ds.variables['init_hour'][0]
+        init_minute = ds.variables['init_minute'][0]
+        data['fcst_time']   = fcst_time
+        data['init_year']   = init_year
+        data['init_month']  = init_month
+        data['init_day']    = init_day
+        data['init_hour']   = init_hour
+        data['init_minute'] = init_minute
     return data 
 
-def plot_data(data_obs, data_scm, filename_obs, filename_scm):
+def plot_data(data_obs, data_scm, filename_obs, filename_scm, scmtime2plot):
     fig,axes =plt.subplots(3,1,figsize=(10,15))
-    
+
     #Temperature and dewpoint
     ax1 = axes[0]
     ax1.plot(data_obs["Temp"][:],data_obs["Press"],label='Temperature OBS (°C)', color='blue')
     ax1.plot(data_obs["Dewpt"][:],data_obs["Press"],label='Dewpoint OBS (°C)', color='g')
-    ax1.plot(data_scm["Temp"][0,:,0],data_scm["Press"][0,:,0],label='Temperature SCM (°C)', color='blue', linestyle='--')
-    ax1.plot(data_scm["Dewpt"][0,:,0],data_scm["Press"][0,:,0],label='Dewpoint SCM (°C)', color='g', linestyle='--')
+    ax1.plot(data_scm["Temp"][scmtime2plot,:,0],data_scm["Press"][scmtime2plot,:,0],label='Temperature SCM (°C)', color='blue', linestyle='--')
+    ax1.plot(data_scm["Dewpt"][scmtime2plot,:,0],data_scm["Press"][scmtime2plot,:,0],label='Dewpoint SCM (°C)', color='g', linestyle='--')
     ax1.set_title(f"Temperature & Dewpoint Profile\nOBS: {filename_obs}\nSCM: {filename_scm}")
     ax1.set_ylabel('Pressure (mb)')
     ax1.set_xlabel('Temperature (°C)')
     ax1.set_yscale('log')
     ax1.set_ylim(1000,10)
-    ax1.invert_yaxis()
+    #ax1.invert_yaxis()
     ax1.legend()
     #ax2 = ax1.twinx()
     #ax2.plot(data_obs["Temp"][:],data_obs["Alt"][:], label='Altitude (m)', visible=False)
@@ -133,16 +155,16 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm):
     # Wind speed and direction
     ax2 = axes[1]
     ax2.plot(data_obs["spd"][:],data_obs["Press"],label='Wind Speed OBS (m/s)', color='blue')
-    ax2.plot(data_scm["spd"][0,:,0], data_scm["Press"][0,:,0], label='Wind Speed SCM (m/s)', color='blue', linestyle='--')
+    ax2.plot(data_scm["spd"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='Wind Speed SCM (m/s)', color='blue', linestyle='--')
     ax2.set_ylabel('Pressure (mb)')
     ax2.set_xlabel('Wind speed (m/s)')
     ax2.set_yscale('log')
-    ax2.set_ylim(1000,100)
+    ax2.set_ylim(1000,10)
     ax2.set_xlim(0,50)
-    ax2.invert_yaxis()
+    #ax2.invert_yaxis()
     ax3=ax2.twiny()
     ax3.plot(data_obs["dir"][:],data_obs["Press"], label='Wind Direction OBS (°)', color='g')
-    ax3.plot(data_scm["dir"][0,:,0], data_scm["Press"][0,:,0], label='Wind Direction SCM (°)', color='g', linestyle='--')
+    ax3.plot(data_scm["dir"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='Wind Direction SCM (°)', color='g', linestyle='--')
     ax3.set_xlabel('Wind Direction (°)')
     ax3.set_xlim(0,360)
     ax2.set_title(f"Wind Speed and Direction Profile")
@@ -156,12 +178,12 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm):
     ax4 = axes[2]
     ax4.plot(data_obs["Ucmp"][:],data_obs["Press"],label='U Wind OBS (m/s)', color='blue')
     ax4.plot(data_obs["Vcmp"][:],data_obs["Press"],label='V Wind OBS (m/s)', color='g')
-    ax4.plot(data_scm["Ucmp"][0,:,0], data_scm["Press"][0,:,0], label='U Wind SCM (m/s)', color='blue', linestyle='--')
-    ax4.plot(data_scm["Vcmp"][0,:,0], data_scm["Press"][0,:,0], label='V Wind SCM (m/s)', color='g', linestyle='--')
+    ax4.plot(data_scm["Ucmp"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='U Wind SCM (m/s)', color='blue', linestyle='--')
+    ax4.plot(data_scm["Vcmp"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='V Wind SCM (m/s)', color='g', linestyle='--')
     ax4.axvline(x=0,color='r',linestyle='--')
     ax4.set_title("Wind Profile")
     ax4.set_ylabel('Pressure (mb)')
-    ax4.set_ylim(1000,100)
+    ax4.set_ylim(1000,10)
     ax4.set_xlabel('Wind speed (m/s)')
     ax4.set_xlim(-40,40)
     ax4.set_yscale('log')
@@ -174,7 +196,21 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm):
     plt.close(fig)
 
 for filename_obs, filename_scm in zip(filenames_obs,filenames_scm):
+    # Read in SOCRATES radiosonde observations and SCN model output.
     data_obs = process_file_obs(fdir_obs, filename_obs)
     data_scm = process_file_scm(fdir_scm, filename_scm)
-    plot_data(data_obs, data_scm, filename_obs, filename_scm)
+
+    # Find nearest SCM time for radiosonde launch, save index, pass to plotting routine.
+    dhour = data_obs["launch_hour"]-data_scm["init_hour"]
+    dmin  = data_obs["launch_minute"]-data_scm["init_minute"]
+    if dhour < 0:
+        itime = 0
+    else:
+        secintoday = dhour*3600+dmin*60
+        dt = np.abs(data_scm["fcst_time"] - secintoday)
+        itime = np.argmin(dt)
+    # end if
+
+    # Make plots
+    plot_data(data_obs, data_scm, filename_obs, filename_scm, itime)
 
