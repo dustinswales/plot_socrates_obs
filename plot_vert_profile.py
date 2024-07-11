@@ -53,7 +53,7 @@ def calculate_dewpoint_temperature(RH, T):
     Es = calculate_saturation_vapor_pressure(T)
     E = RH / 100 * Es
     E[E<=0] = 1e-10
-    return 1 / (1/T0 - (np.log(E/E0) / L_Rv))-273.15
+    return 1 / (1/(T+273.15) - (np.log(E/E0) / L_Rv))-273.15
 def calculate_wind_speed(u, v):
     return np.sqrt(u**2 + v**2)
 def calculate_wind_direction(u, v):
@@ -90,7 +90,7 @@ def process_file_scm(fdir, filename):
     filepath = os.path.join(fdir,filename)
     data = {}
     with nc.Dataset(filepath) as ds:
-        T = ds.variables['T'][:] # Temperature in K
+        T = ds.variables['T'][:]-273.15 # Temperature in C
         P = ds.variables['pres'][:] # Pressure in kPa
         qv = ds.variables['qv'][:] # Specific humidity
         u = ds.variables['u'][:] 
