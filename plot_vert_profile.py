@@ -9,7 +9,6 @@ fdir_obs = '/home/Lily.Johnston/plot_socrates_obs/radiosonde_data/'
 output_dir = 'figures/'
 filenames_obs = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
              'SOCRATES_HighRes_20180204_1219_ISS3.txt',
-             'SOCRATES_HighRes_20180204_1715_Hobart.txt',
              'SOCRATES_HighRes_20180204_2141_Invercargill.txt',
              'SOCRATES_HighRes_20180204_2315_Casey.txt',
              'SOCRATES_HighRes_20180204_2316_Hobart.txt',
@@ -23,7 +22,6 @@ filenames_obs = ['SOCRATES_HighRes_20180204_1115_Melbourne.txt',
 fdir_scm = '/home/Lily.Johnston/plot_socrates_obs/scm_data/'
 filenames_scm = ['n001_melbourne.nc',
                  'n002_iss3.nc',
-                 'n000_hobart.nc',
                  'n005_invercargill.nc',
                  'n007_casey.nc',
                  'n000_hobart.nc',
@@ -37,7 +35,6 @@ filenames_scm = ['n001_melbourne.nc',
 header_lines_ignore = 12
 data_start_index= 15
 
-# Constants for Clausius-Clapeyron equation
 E0 = 6.11 # kPa
 L_Rv = 5423 #K
 T0 = 273.15 #K
@@ -55,11 +52,13 @@ def calculate_dewpoint_temperature(RH, T):
     E[E<=0] = 1e-10
     return 1 / (1/(T+273.15) - (np.log(E/E0) / L_Rv))-273.15
 def calculate_wind_speed(u, v):
-    return np.sqrt(u**2 + v**2)
+    wind_abs = np.sqrt(u**2 + v**2)
+    return wind_abs
 def calculate_wind_direction(u, v):
-    wdir = np.arctan2(u, v) * (180 / np.pi) # Convert from radians to degrees
-    wdir = (wdir + 360) % 360 # Ensure the direction is within [0, 360) degrees
-    return wdir
+    wdir_trig_to = np.arctan2(u/np.sqrt(u**2 + v**2), v/np.sqrt(u**2 + v**2))
+    wdir_trig_to_deg = wdir_trig_to * 180/np.pi
+    wdir_from_deg = wdir_trig_to_deg + 180
+    return wdir_from_deg % 360 # Ensure the direction is within [0, 360) degrees
 
 def process_file_obs(fdir, filename):
     filepath = os.path.join(fdir,filename)
@@ -104,7 +103,7 @@ def process_file_scm(fdir, filename):
         qv = ds.variables['qv'][:] # Specific humidity
         u = ds.variables['u'][:] 
         v = ds.variables['v'][:] 
-        RH = calculate_relative_humidity(qv, T, P)
+        RH = calculate_relative_humidity(qv, T, P*100)
         Td = calculate_dewpoint_temperature(RH, T)
         wspd = calculate_wind_speed(u, v)
         wdir = calculate_wind_direction(u, v)
