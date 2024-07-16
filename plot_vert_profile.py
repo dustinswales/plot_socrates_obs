@@ -135,10 +135,10 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm, scmtime2plot):
 
     #Temperature and dewpoint
     ax1 = axes[0]
-    ax1.plot(data_obs["Temp"][:],data_obs["Press"],label='Temperature OBS (°C)', color='#BCBD22')
-    ax1.plot(data_obs["Dewpt"][:],data_obs["Press"],label='Dewpoint OBS (°C)', color='#17BECF')
-    ax1.plot(data_scm["Temp"][scmtime2plot,:,0],data_scm["Press"][scmtime2plot,:,0],label='Temperature SCM (°C)', color='#BCBD22', linestyle='--')
-    ax1.plot(data_scm["Dewpt"][scmtime2plot,:,0],data_scm["Press"][scmtime2plot,:,0],label='Dewpoint SCM (°C)', color='#17BECF', linestyle='--')
+    ax1.plot(data_obs["Temp"][:],data_obs["Press"],label='Temperature OBS (°C)', color='blue')
+    ax1.plot(data_obs["Dewpt"][:],data_obs["Press"],label='Dewpoint OBS (°C)', color='g')
+    ax1.plot(data_scm["Temp"][scmtime2plot,:,0],data_scm["Press"][scmtime2plot,:,0],label='Temperature SCM (°C)', color='blue', linestyle='--')
+    ax1.plot(data_scm["Dewpt"][scmtime2plot,:,0],data_scm["Press"][scmtime2plot,:,0],label='Dewpoint SCM (°C)', color='g', linestyle='--')
     ax1.set_title(f"Temperature & Dewpoint Profile\nOBS: {filename_obs}\nSCM: {filename_scm}")
     ax1.set_ylabel('Pressure (mb)')
     ax1.set_xlabel('Temperature (°C)')
@@ -152,8 +152,8 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm, scmtime2plot):
 
     # Wind speed and direction
     ax2 = axes[1]
-    ax2.plot(data_obs["spd"][:],data_obs["Press"],label='Wind Speed OBS (m/s)', color='#E377C2')
-    ax2.plot(data_scm["spd"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='Wind Speed SCM (m/s)', color='#E377C2', linestyle='--')
+    ax2.plot(data_obs["spd"][:],data_obs["Press"],label='Wind Speed OBS (m/s)', color='blue')
+    ax2.plot(data_scm["spd"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='Wind Speed SCM (m/s)', color='blue', linestyle='--')
     ax2.set_ylabel('Pressure (mb)')
     ax2.set_xlabel('Wind speed (m/s)')
     ax2.set_yscale('log')
@@ -161,8 +161,8 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm, scmtime2plot):
     ax2.set_xlim(0,50)
     #ax2.invert_yaxis()
     ax3=ax2.twiny()
-    ax3.plot(data_obs["dir"][:],data_obs["Press"], label='Wind Direction OBS (°)', color='#8C564B')
-    ax3.plot(data_scm["dir"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='Wind Direction SCM (°)', color='#8C564B', linestyle='--')
+    ax3.plot(data_obs["dir"][:],data_obs["Press"], label='Wind Direction OBS (°)', color='g')
+    ax3.plot(data_scm["dir"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='Wind Direction SCM (°)', color='g', linestyle='--')
     ax3.set_xlabel('Wind Direction (°)')
     ax3.set_xlim(0,360)
     ax2.set_title(f"Wind Speed and Direction Profile")
@@ -175,9 +175,9 @@ def plot_data(data_obs, data_scm, filename_obs, filename_scm, scmtime2plot):
     # Horizontal and verticle wind
     ax4 = axes[2]
     ax4.plot(data_obs["Ucmp"][:],data_obs["Press"],label='U Wind OBS (m/s)', color='blue')
-    ax4.plot(data_obs["Vcmp"][:],data_obs["Press"],label='V Wind OBS (m/s)', color='#FF7F0E')
+    ax4.plot(data_obs["Vcmp"][:],data_obs["Press"],label='V Wind OBS (m/s)', color='g')
     ax4.plot(data_scm["Ucmp"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='U Wind SCM (m/s)', color='blue', linestyle='--')
-    ax4.plot(data_scm["Vcmp"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='V Wind SCM (m/s)', color='#FF7F0E', linestyle='--')
+    ax4.plot(data_scm["Vcmp"][scmtime2plot,:,0], data_scm["Press"][scmtime2plot,:,0], label='V Wind SCM (m/s)', color='g', linestyle='--')
     ax4.axvline(x=0,color='r',linestyle='--')
     ax4.set_title("Wind Profile")
     ax4.set_ylabel('Pressure (mb)')

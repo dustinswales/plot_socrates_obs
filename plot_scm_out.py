@@ -9,7 +9,7 @@
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
-#
+
 def plot_results(file_bl, file_rt=None, vars2plt=None):
 #def plot_results(file_bl, file_rt, plot_bl, plot_rt, plot_all, debug):
     # List of SCM output fields to plot
@@ -34,7 +34,7 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
          "du_dt_nonphys","dv_dt_pbl","dv_dt_ogwd","dv_dt_deepconv",           \
          "dv_dt_shalconv","dv_dt_phys","dv_dt_nonphys","sfc_dwn_sw",          \
          "sfc_up_sw","sfc_net_sw","sfc_dwn_lw","gflux","u10m","v10m","hpbl",  \
-          "tprcp_accum","ice_accum","snow_accum","graupel_accum",              \
+         "tprcp_accum","ice_accum","snow_accum","graupel_accum",              \
          "conv_prcp_accum","tprcp_rate_accum","ice_rate_accum",               \
          "snow_rate_accum","graupel_rate_accum","conv_prcp_rate_accum",       \
          "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp",           \
@@ -47,7 +47,7 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
          "qv_force_tend","T_force_tend","u_force_tend","v_force_tend","w_ls", \
          "u_g","v_g","dT_dt_rad_forc","h_advec_thil","h_advec_qt",            \
          "v_advec_thil","v_advec_qt","T_s","lhf","shf","tprcp_inst",          \
-         "tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u","tau_v"]
+         "tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u","tau_v","pwat", "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp", "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
     vars2plot_DEBUG = \
         ["qv","u10m"]
 
@@ -78,9 +78,9 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
             # Here the suffix is stripped and used to identify the temporal dimenesion (index 0 in netcdf file)
             timeD = SCM_BL[var].dimensions[0]
             timeD = timeD[0:len(timeD)-4]
-            x1    = SCM_BL[timeD][:].squeeze()/3600. #seconds -> hours
+            x1 = SCM_BL[timeD][:].squeeze()/3600. #seconds -> hours
             if file_rt is not None:
-                x2    = SCM_RT[timeD][:].squeeze()/3600. #seconds - >hours
+                x2 = SCM_RT[timeD][:].squeeze()/3600. #seconds - >hours
                 # If temporal dimensions disagree, con't compute deltas from experiments, turn off difference plots.
                 if (x1.shape != x2.shape):
                     plot_diff = False
@@ -111,20 +111,22 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                     
                     # Baselines and RTs on same plot
                     if plot_diff: plt.subplot(2,1,1)
-                    plt.title(SCM_BL[var].description)
+                    long_name = SCM_BL[var].description
+                    units = SCM_BL[var].units
+                    plt.title(long_name)
                     plt.plot(x1, y1,  color='blue')
                     if plot_diff: plt.plot(x2, y2,  color='black')
-                    plt.ylabel(f'({units})')
-                    plt.xlabel('(hours)')
+                    plt.ylabel(f'{long_name} ({units})')
+                    plt.xlabel('Time (hours)')
                     
                     # Difference (Baseline-MRT)
                     if plot_diff:
                         plt.subplot(2,1,2)
-                        plt.title("Difference in {long_name} (blue - black)")
+                        plt.title("Difference (blue - black)")
                         plt.plot(x1, y1 - y2,  color='red')
                         plt.plot(x1, np.zeros(len(y1)), color='grey',linestyle='dashed')
-                        plt.ylabel(f'({units})')
-                        plt.xlabel('(hours)')
+                        plt.ylabel(f'{long_name} ({units})')
+                        plt.xlabel('Time (hours)')
                     # Save figure
                     fileOUT = 'scm.' + var +'.png'
                     plt.savefig(fileOUT)
@@ -155,14 +157,14 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                 if (np.size(x1) > 1):
                     fig = plt.figure(figsize=(13,10))
                     if file_rt is not None: plt.subplot(3,1,1)
-                    long_name = SCM_BL[var].getncattr('long_name') if 'long_name' in SCM_BL[var].ncattrs() else var
+                    long_name = SCM_BL[var].description
                     units = SCM_BL[var].units
                     plt.title(long_name)
                     plt.contourf(x1, y1, z1, 20, cmap='YlGnBu')
                     plt.ylim(1000,200)
                     plt.xlim(0,np.max(x1))
-                    plt.ylabel('(Pa)')
-                    plt.xlabel('(hours)')
+                    plt.ylabel('Pressure (Pa)')
+                    plt.xlabel('Time (hours)')
                     cbr = plt.colorbar()
                     cbr.set_label(f'{long_name} ({units})')
                     if file_rt is not None:
@@ -171,29 +173,30 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                         plt.contourf(x2, y2, z2, 20, cmap='YlGnBu')
                         plt.ylim(1000,200)
                         plt.xlim(0,np.max(x1))
-                        plt.ylabel('(Pa)')
-                        plt.xlabel('(hours)')
+                        plt.ylabel('Pressure (Pa)')
+                        plt.xlabel('Time (hours)')
                         cbr = plt.colorbar()
-                        cbr.set_label(f'{var} ({SCM_BL[var].units})')
+                        cbr.set_label('('+SCM_RT[var].units+')')
                     # end if
                     # Only plot differences if requested, and only if they are non-zero.
                     if plot_diff:
                         dz = z1-z2
                         if (np.count_nonzero(dz) > 0):
                             plt.subplot(3,1,3)
-                            plt.title("Difference in {long_name} (top - middle)", fontsize=8)
+                            plt.title("Difference (top - middle)", fontsize=8)
                             plt.contourf(x2, y2, dz, 20, cmap='bwr')
                             plt.ylim(1000,200)
-                            plt.ylabel('(Pa)')
-                            plt.xlabel('(hours)')
+                            plt.ylabel('Pressure (Pa)')
+                            plt.xlabel('Time (hours)')
                             cbr = plt.colorbar()
                             cbr.set_label(f'{long_name} ({units})')
                         # end if (no differences exist)
                     # end if     (plot differences)
                     # Save figure
                     fileOUT = 'scm.' + var +'.png'
+                    #plt.show()
                     plt.savefig(fileOUT)
-                    plt.show()
+                    plt.close(fig)
                     plot_files.append(fileOUT)
                 # end if (Have enought pts to plot?)
             # end if     (fields exist?)
@@ -201,3 +204,6 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
     # end for            (fields in file)
 
     return(plot_files)
+
+
+
