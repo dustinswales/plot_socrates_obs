@@ -58,7 +58,7 @@ def process_file(filename):
             return corrected_lon, lat
     return None, None
 
-colormap= plt.colormaps#['tab10']
+#colormap= plt.colormaps#['tab10']
 # Map dimensions                                                                                                                                                
 map_west  = 60
 map_east  = 180
@@ -97,25 +97,30 @@ ax.add_feature(lakes_10m,zorder=3)
 ax.add_feature(c_10m,zorder=4)
 
 # Set colors to use in image.
-colors = cm.rainbow(np.linspace(0, 1, len(filenames)))
-
+#colors = cm.rainbow(np.linspace(0, 1, len(filenames)))
+colors = cm.get_cmap('tab20', len(filenames))
 # Add some aircraft observations
 flight_data = Dataset(flight_data_path)
-ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
+flight_path, = ax.plot(flight_data.variables['LON'][:], flight_data.variables['LAT'][:], transform=ccrs.PlateCarree(), zorder=9, label='Flight Path', color='blue')
+legend_elements = [(flight_path, 'Flight path')]
 for i, fname in enumerate(filenames):
     # Pull out site name from filename.
-    l1 = fname.find("20180204_")+14
-    l2 = len(fname)
-    l3 = l2 - l1 -4
-    siteName = fname[l1:l1+l3]
+    time_start = fname.find("20180204_") + len("20180204_") 
+    launch_time = fname[time_start:time_start + 4] 
+    site_name_start = time_start + 5
+    site_name_end = fname.rfind('.txt')
+    siteName = fname[site_name_start:site_name_end]
     corrected_lon, lat = process_file(fname)
     if corrected_lon and lat:
-        #color = colormap(i % colormap.N)
-        ax.plot(corrected_lon, lat, transform=ccrs.PlateCarree(),zorder=9,label=siteName,color=colors[i])
-        ax.scatter(corrected_lon[0],lat[0],transform=ccrs.PlateCarree(),zorder=9, color=colors[i],s=50)
+        ax.plot(corrected_lon, lat, transform=ccrs.PlateCarree(),zorder=9,color=colors(i))
+        scatter = ax.scatter(corrected_lon[0],lat[0],transform=ccrs.PlateCarree(),zorder=9, color=colors(i),s=25)
+        launch_time_formatted = f'{launch_time[:2]}:{launch_time[2:]} UTC'
+        legend_elements.append((scatter, f'{siteName} launch at {launch_time_formatted}'))
 ax.set_title("Radiosonde and Flight Launch Points and Paths")
-ax.legend(loc='upper left')
+legend_labels = [element[1] for element in legend_elements]
+legend_handles = [element[0] for element in legend_elements]
+ax.legend(legend_handles, legend_labels, loc='upper left')
 plt.show()
 # Save figures                                                                                                                                                  
 # Larger dpi is higher resolution (try dpi=300 if too fuzzy)                                                                                                    
-fig.savefig('socrates_flight&radiosonde_map.pdf', dpi=50, bbox_inches='tight')
+fig.savefig('socrates_flight&radiosonde_map.png', dpi=300, bbox_inches='tight')

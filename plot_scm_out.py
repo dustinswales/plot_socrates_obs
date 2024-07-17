@@ -9,7 +9,7 @@
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
-
+import cmocean
 def plot_results(file_bl, file_rt=None, vars2plt=None):
 #def plot_results(file_bl, file_rt, plot_bl, plot_rt, plot_all, debug):
     # List of SCM output fields to plot
@@ -160,20 +160,20 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                     long_name = SCM_BL[var].description
                     units = SCM_BL[var].units
                     plt.title(long_name)
-                    plt.contourf(x1, y1, z1, 20, cmap='YlGnBu')
-                    plt.ylim(1000,200)
+                    plt.contourf(x1, y1, z1, 20, cmap=cmocean.cm.tempo)
+                    plt.ylim(1000,500)
                     plt.xlim(0,np.max(x1))
-                    plt.ylabel('Pressure (Pa)')
+                    plt.ylabel('Pressure (hPa)')
                     plt.xlabel('Time (hours)')
                     cbr = plt.colorbar()
                     cbr.set_label(f'{long_name} ({units})')
                     if file_rt is not None:
                         # SCM RTs
                         plt.subplot(3,1,2)
-                        plt.contourf(x2, y2, z2, 20, cmap='YlGnBu')
-                        plt.ylim(1000,200)
+                        plt.contourf(x2, y2, z2, 20, cmap=cmocean.cm.tempo)
+                        plt.ylim(1000,500)
                         plt.xlim(0,np.max(x1))
-                        plt.ylabel('Pressure (Pa)')
+                        plt.ylabel('Pressure (hPa)')
                         plt.xlabel('Time (hours)')
                         cbr = plt.colorbar()
                         cbr.set_label('('+SCM_RT[var].units+')')
@@ -184,9 +184,9 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                         if (np.count_nonzero(dz) > 0):
                             plt.subplot(3,1,3)
                             plt.title("Difference (top - middle)", fontsize=8)
-                            plt.contourf(x2, y2, dz, 20, cmap='bwr')
-                            plt.ylim(1000,200)
-                            plt.ylabel('Pressure (Pa)')
+                            plt.contourf(x2, y2, dz, 20, cmap=cmocean.cm.tempo)
+                            plt.ylim(1000,500)
+                            plt.ylabel('Pressure (hPa)')
                             plt.xlabel('Time (hours)')
                             cbr = plt.colorbar()
                             cbr.set_label(f'{long_name} ({units})')
