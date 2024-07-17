@@ -42,7 +42,8 @@ def calculate_saturation_vapor_pressure(T):
     return E0 * np.exp(L_Rv * (1/T0 - 1/(T+273.15)))
 def calculate_relative_humidity(qv, T, P):
     Es = calculate_saturation_vapor_pressure(T)
-    E = qv * P / (0.622 + qv) # Actual vapor pressure
+    w = qv/(1-qv)
+    E = w * P / (0.622 + w) # Actual vapor pressure
     return (E / Es) * 100 # Relative humidity in %
 def calculate_dewpoint_temperature(RH, T):
     RH = np.clip(RH, 0, 100)
