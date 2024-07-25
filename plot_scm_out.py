@@ -13,44 +13,47 @@ import cmocean
 def plot_results(file_bl, file_rt=None, vars2plt=None):
 #def plot_results(file_bl, file_rt, plot_bl, plot_rt, plot_all, debug):
     # List of SCM output fields to plot
-    vars2plot_ALL = \
-        ["pres", "pres_i","sigma","sigma_i","pres_s","qv","T","u","v","ql",   \
-         "qi","qc","qv_force_tend","T_force_tend","u_force_tend",             \
-         "v_force_tend","w_ls","u_g","v_g","dT_dt_rad_forc","h_advec_thil",   \
-         "h_advec_qt", "v_advec_thil","v_advec_qt","T_s","lhf","shf",         \
-         "tprcp_inst","tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u",   \
-         "tau_v","upd_mf","dwn_mf","det_mf","sfc_up_lw_land","sfc_up_lw_ice", \
-         "sfc_up_lw_water","sfc_up_sw_dir_nir","sfc_up_sw_dif_nir",           \
-         "sfc_up_sw_dir_vis","sfc_up_sw_dif_vis","sfc_dwn_sw_dir_nir",        \
-         "sfc_dwn_sw_dif_nir","sfc_dwn_sw_dir_vis","sfc_dwn_sw_dif_vis",      \
-         "mp_prcp_inst","dcnv_prcp_inst","scnv_prcp_inst","pwat",             \
-         "dT_dt_lwrad","dT_dt_swrad","dT_dt_pbl","dT_dt_deepconv",            \
-         "dT_dt_shalconv","dT_dt_micro","dT_dt_ogwd","dT_dt_cgwd",            \
-         "dT_dt_phys","dT_dt_nonphys","dq_dt_pbl","dq_dt_deepconv",           \
-         "dq_dt_shalconv","dq_dt_micro","dq_dt_phys","dq_dt_nonphys",         \
-         "doz_dt_pbl","doz_dt_prodloss","doz_dt_oz","doz_dt_T","doz_dt_ovhd", \
-         "doz_dt_phys","doz_dt_nonphys","du_dt_pbl","du_dt_ogwd","dv_dt_cgwd",\
-         "du_dt_deepconv","du_dt_cgwd","du_dt_shalconv","du_dt_phys",         \
-         "du_dt_nonphys","dv_dt_pbl","dv_dt_ogwd","dv_dt_deepconv",           \
-         "dv_dt_shalconv","dv_dt_phys","dv_dt_nonphys","sfc_dwn_sw",          \
-         "sfc_up_sw","sfc_net_sw","sfc_dwn_lw","gflux","u10m","v10m","hpbl",  \
-         "tprcp_accum","ice_accum","snow_accum","graupel_accum",              \
-         "conv_prcp_accum","tprcp_rate_accum","ice_rate_accum",               \
-         "snow_rate_accum","graupel_rate_accum","conv_prcp_rate_accum",       \
-         "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp",           \
-         "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
+#    vars2plot_ALL = \
+#        ["pres", "pres_i","sigma","sigma_i","pres_s","qv","T","u","v","ql",   \
+#         "qi","qc","qv_force_tend","T_force_tend","u_force_tend",             \
+#         "v_force_tend","w_ls","u_g","v_g","dT_dt_rad_forc","h_advec_thil",   \
+#         "h_advec_qt", "v_advec_thil","v_advec_qt","T_s","lhf","shf",         \
+#         "tprcp_inst","tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u",   \
+#         "tau_v","upd_mf","dwn_mf","det_mf","sfc_up_lw_land","sfc_up_lw_ice", \
+#         "sfc_up_lw_water","sfc_up_sw_dir_nir","sfc_up_sw_dif_nir",           \
+#         "sfc_up_sw_dir_vis","sfc_up_sw_dif_vis","sfc_dwn_sw_dir_nir",        \
+#         "sfc_dwn_sw_dif_nir","sfc_dwn_sw_dir_vis","sfc_dwn_sw_dif_vis",      \
+#         "mp_prcp_inst","dcnv_prcp_inst","scnv_prcp_inst","pwat",             \
+#         "dT_dt_lwrad","dT_dt_swrad","dT_dt_pbl","dT_dt_deepconv",            \
+#         "dT_dt_shalconv","dT_dt_micro","dT_dt_ogwd","dT_dt_cgwd",            \
+#         "dT_dt_phys","dT_dt_nonphys","dq_dt_pbl","dq_dt_deepconv",           \
+#         "dq_dt_shalconv","dq_dt_micro","dq_dt_phys","dq_dt_nonphys",         \
+#         "doz_dt_pbl","doz_dt_prodloss","doz_dt_oz","doz_dt_T","doz_dt_ovhd", \
+#         "doz_dt_phys","doz_dt_nonphys","du_dt_pbl","du_dt_ogwd","dv_dt_cgwd",\
+#         "du_dt_deepconv","du_dt_cgwd","du_dt_shalconv","du_dt_phys",         \
+#         "du_dt_nonphys","dv_dt_pbl","dv_dt_ogwd","dv_dt_deepconv",           \
+#         "dv_dt_shalconv","dv_dt_phys","dv_dt_nonphys","sfc_dwn_sw",          \
+#         "sfc_up_sw","sfc_net_sw","sfc_dwn_lw","gflux","u10m","v10m","hpbl",  \
+#         "tprcp_accum","ice_accum","snow_accum","graupel_accum",              \
+#         "conv_prcp_accum","tprcp_rate_accum","ice_rate_accum",               \
+#         "snow_rate_accum","graupel_rate_accum","conv_prcp_rate_accum",       \
+#         "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp",           \
+#         "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
     
     # Smaller subset of SCM outputs to plot.
-    vars2plot_SUB = \
-        ["qv","T","u","v","ql","qi","qc","sfc_dwn_sw","sfc_up_sw",            \
-         "sfc_net_sw","sfc_dwn_lw", "u10m","v10m","hpbl","gflux",             \
-         "qv_force_tend","T_force_tend","u_force_tend","v_force_tend","w_ls", \
-         "u_g","v_g","dT_dt_rad_forc","h_advec_thil","h_advec_qt",            \
-         "v_advec_thil","v_advec_qt","T_s","lhf","shf","tprcp_inst",          \
-         "tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u","tau_v","pwat", "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp", "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
-    vars2plot_DEBUG = \
-        ["qv","u10m"]
-
+#    vars2plot_SUB = \
+#        ["qv","T","u","v","ql","qi","qc","sfc_dwn_sw","sfc_up_sw",            \
+#         "sfc_net_sw","sfc_dwn_lw", "u10m","v10m","hpbl","gflux",             \
+#         "qv_force_tend","T_force_tend","u_force_tend","v_force_tend","w_ls", \
+#         "u_g","v_g","dT_dt_rad_forc","h_advec_thil","h_advec_qt",            \
+#         "v_advec_thil","v_advec_qt","T_s","lhf","shf","tprcp_inst",          \
+#         "tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u","tau_v","pwat", "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp", "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
+#    vars2plot_DEBUG = \
+#        ["qv","u10m"]
+    vars2plot = ["ql"]
+    vars2plot_ALL = ["ql"]
+    vars2plot_SUB = ["ql"]
+    vars2plot_DEBUG = ["ql"]
     # Which fields to plot? (default is subset of full fields)
     if vars2plt is None:
         vars2plot = vars2plot_SUB
@@ -102,6 +105,10 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                     y1 = SCM_BL[var][:]
                     if file_rt is not None:
                         y2 = SCM_RT[var][:]
+                if var == "ql":
+                    y1 *= 1000 # convert kg/kg to g/kg
+                    if file_rt is not None:
+                        y2 *= 1000 
                     # end if
                 # endif
                 
@@ -112,7 +119,8 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                     # Baselines and RTs on same plot
                     if plot_diff: plt.subplot(2,1,1)
                     long_name = SCM_BL[var].description
-                    units = SCM_BL[var].units
+                    #units = SCM_BL[var].units
+                    units = "g/kg" if var == "ql" else SCM_BL[var].units
                     plt.title(long_name)
                     plt.plot(x1, y1,  color='blue')
                     if plot_diff: plt.plot(x2, y2,  color='black')
@@ -150,51 +158,63 @@ def plot_results(file_bl, file_rt=None, vars2plt=None):
                     y1 = SCM_BL["pres_i"][0,:].squeeze()*0.01
                     if file_rt is not None:
                         y2 = SCM_RT["pres_i"][0,:].squeeze()*0.01
+                if var == "ql":
+                    z1 *= 1000
+                    if file_rt is not None:
+                        z2 *= 1000
                     # end if
                 # endif
 
                 # Finally, make figure.
                 if (np.size(x1) > 1):
-                    fig = plt.figure(figsize=(13,10))
-                    if file_rt is not None: plt.subplot(3,1,1)
+                    fig,ax = plt.subplots(figsize=(13,10))
+                    if file_rt is not None:
+                        fig,ax=plt.subplots(figsize=(13,10))
                     long_name = SCM_BL[var].description
-                    units = SCM_BL[var].units
+                    #units = SCM_BL[var].units
+                    units = "g/kg" if var == "ql" else SCM_BL[var].units
                     plt.title(long_name)
                     plt.contourf(x1, y1, z1, 20, cmap=cmocean.cm.tempo)
+                    #cf=plt.contourf(x1, y1, z1, levels=np.linspace(-20,20,21), cmap=plt.get_cmap('BrBG'))
                     plt.ylim(1000,500)
                     plt.xlim(0,np.max(x1))
                     plt.ylabel('Pressure (hPa)')
                     plt.xlabel('Time (hours)')
                     cbr = plt.colorbar()
                     cbr.set_label(f'{long_name} ({units})')
+                    
                     if file_rt is not None:
                         # SCM RTs
-                        plt.subplot(3,1,2)
-                        plt.contourf(x2, y2, z2, 20, cmap=cmocean.cm.tempo)
+                        fig,ax=plt.subplots(figsize=(13,10))
+                        plt.contourf(x2, y2, z2,20, cmap=cmocean.cm.tempo)
+                        #cf=plt.contourf(x1, y1, z1, levels=np.linspace(-20,20,21), cmap=plt.get_cmap('BrBG'))
                         plt.ylim(1000,500)
                         plt.xlim(0,np.max(x1))
                         plt.ylabel('Pressure (hPa)')
                         plt.xlabel('Time (hours)')
                         cbr = plt.colorbar()
                         cbr.set_label('('+SCM_RT[var].units+')')
+                        #cf.set_clim(-20,20)
                     # end if
                     # Only plot differences if requested, and only if they are non-zero.
                     if plot_diff:
                         dz = z1-z2
                         if (np.count_nonzero(dz) > 0):
-                            plt.subplot(3,1,3)
+                            fig,ax=plt.subplot(figsize=(13,10))
                             plt.title("Difference (top - middle)", fontsize=8)
-                            plt.contourf(x2, y2, dz, 20, cmap=cmocean.cm.tempo)
+                            plt.contourf(x2, y2, dz,20, cmap=cmocean.cm.tempo)
+                            #cf=plt.contourf(x1, y1, z1, levels=np.linspace(-20,20,21), cmap=plt.get_cmap('BrBG')) #wind plots
                             plt.ylim(1000,500)
                             plt.ylabel('Pressure (hPa)')
                             plt.xlabel('Time (hours)')
                             cbr = plt.colorbar()
                             cbr.set_label(f'{long_name} ({units})')
+                            #cf.set_clim(-20,20)
                         # end if (no differences exist)
                     # end if     (plot differences)
                     # Save figure
                     fileOUT = 'scm.' + var +'.png'
-                    #plt.show()
+                    plt.show()
                     plt.savefig(fileOUT)
                     plt.close(fig)
                     plot_files.append(fileOUT)
