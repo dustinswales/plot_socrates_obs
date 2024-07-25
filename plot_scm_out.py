@@ -11,49 +11,49 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cmocean
 def plot_results(file_bl, file_rt=None, vars2plt=None):
-#def plot_results(file_bl, file_rt, plot_bl, plot_rt, plot_all, debug):
+def plot_results(file_bl, file_rt, plot_bl, plot_rt, plot_all, debug):
     # List of SCM output fields to plot
-#    vars2plot_ALL = \
-#        ["pres", "pres_i","sigma","sigma_i","pres_s","qv","T","u","v","ql",   \
-#         "qi","qc","qv_force_tend","T_force_tend","u_force_tend",             \
-#         "v_force_tend","w_ls","u_g","v_g","dT_dt_rad_forc","h_advec_thil",   \
-#         "h_advec_qt", "v_advec_thil","v_advec_qt","T_s","lhf","shf",         \
-#         "tprcp_inst","tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u",   \
-#         "tau_v","upd_mf","dwn_mf","det_mf","sfc_up_lw_land","sfc_up_lw_ice", \
-#         "sfc_up_lw_water","sfc_up_sw_dir_nir","sfc_up_sw_dif_nir",           \
-#         "sfc_up_sw_dir_vis","sfc_up_sw_dif_vis","sfc_dwn_sw_dir_nir",        \
-#         "sfc_dwn_sw_dif_nir","sfc_dwn_sw_dir_vis","sfc_dwn_sw_dif_vis",      \
-#         "mp_prcp_inst","dcnv_prcp_inst","scnv_prcp_inst","pwat",             \
-#         "dT_dt_lwrad","dT_dt_swrad","dT_dt_pbl","dT_dt_deepconv",            \
-#         "dT_dt_shalconv","dT_dt_micro","dT_dt_ogwd","dT_dt_cgwd",            \
-#         "dT_dt_phys","dT_dt_nonphys","dq_dt_pbl","dq_dt_deepconv",           \
-#         "dq_dt_shalconv","dq_dt_micro","dq_dt_phys","dq_dt_nonphys",         \
-#         "doz_dt_pbl","doz_dt_prodloss","doz_dt_oz","doz_dt_T","doz_dt_ovhd", \
-#         "doz_dt_phys","doz_dt_nonphys","du_dt_pbl","du_dt_ogwd","dv_dt_cgwd",\
-#         "du_dt_deepconv","du_dt_cgwd","du_dt_shalconv","du_dt_phys",         \
-#         "du_dt_nonphys","dv_dt_pbl","dv_dt_ogwd","dv_dt_deepconv",           \
-#         "dv_dt_shalconv","dv_dt_phys","dv_dt_nonphys","sfc_dwn_sw",          \
-#         "sfc_up_sw","sfc_net_sw","sfc_dwn_lw","gflux","u10m","v10m","hpbl",  \
-#         "tprcp_accum","ice_accum","snow_accum","graupel_accum",              \
-#         "conv_prcp_accum","tprcp_rate_accum","ice_rate_accum",               \
-#         "snow_rate_accum","graupel_rate_accum","conv_prcp_rate_accum",       \
-#         "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp",           \
-#         "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
+    vars2plot_ALL = \
+        ["pres", "pres_i","sigma","sigma_i","pres_s","qv","T","u","v","ql",   \
+         "qi","qc","qv_force_tend","T_force_tend","u_force_tend",             \
+         "v_force_tend","w_ls","u_g","v_g","dT_dt_rad_forc","h_advec_thil",   \
+         "h_advec_qt", "v_advec_thil","v_advec_qt","T_s","lhf","shf",         \
+         "tprcp_inst","tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u",   \
+         "tau_v","upd_mf","dwn_mf","det_mf","sfc_up_lw_land","sfc_up_lw_ice", \
+         "sfc_up_lw_water","sfc_up_sw_dir_nir","sfc_up_sw_dif_nir",           \
+         "sfc_up_sw_dir_vis","sfc_up_sw_dif_vis","sfc_dwn_sw_dir_nir",        \
+         "sfc_dwn_sw_dif_nir","sfc_dwn_sw_dir_vis","sfc_dwn_sw_dif_vis",      \
+         "mp_prcp_inst","dcnv_prcp_inst","scnv_prcp_inst","pwat",             \
+         "dT_dt_lwrad","dT_dt_swrad","dT_dt_pbl","dT_dt_deepconv",            \
+         "dT_dt_shalconv","dT_dt_micro","dT_dt_ogwd","dT_dt_cgwd",            \
+         "dT_dt_phys","dT_dt_nonphys","dq_dt_pbl","dq_dt_deepconv",           \
+         "dq_dt_shalconv","dq_dt_micro","dq_dt_phys","dq_dt_nonphys",         \
+         "doz_dt_pbl","doz_dt_prodloss","doz_dt_oz","doz_dt_T","doz_dt_ovhd", \
+         "doz_dt_phys","doz_dt_nonphys","du_dt_pbl","du_dt_ogwd","dv_dt_cgwd",\
+         "du_dt_deepconv","du_dt_cgwd","du_dt_shalconv","du_dt_phys",         \
+         "du_dt_nonphys","dv_dt_pbl","dv_dt_ogwd","dv_dt_deepconv",           \
+         "dv_dt_shalconv","dv_dt_phys","dv_dt_nonphys","sfc_dwn_sw",          \
+         "sfc_up_sw","sfc_net_sw","sfc_dwn_lw","gflux","u10m","v10m","hpbl",  \
+         "tprcp_accum","ice_accum","snow_accum","graupel_accum",              \
+         "conv_prcp_accum","tprcp_rate_accum","ice_rate_accum",               \
+         "snow_rate_accum","graupel_rate_accum","conv_prcp_rate_accum",       \
+         "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp",           \
+         "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
     
     # Smaller subset of SCM outputs to plot.
-#    vars2plot_SUB = \
-#        ["qv","T","u","v","ql","qi","qc","sfc_dwn_sw","sfc_up_sw",            \
-#         "sfc_net_sw","sfc_dwn_lw", "u10m","v10m","hpbl","gflux",             \
-#         "qv_force_tend","T_force_tend","u_force_tend","v_force_tend","w_ls", \
-#         "u_g","v_g","dT_dt_rad_forc","h_advec_thil","h_advec_qt",            \
-#         "v_advec_thil","v_advec_qt","T_s","lhf","shf","tprcp_inst",          \
-#         "tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u","tau_v","pwat", "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp", "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
-#    vars2plot_DEBUG = \
-#        ["qv","u10m"]
-    vars2plot = ["ql"]
-    vars2plot_ALL = ["ql"]
-    vars2plot_SUB = ["ql"]
-    vars2plot_DEBUG = ["ql"]
+    vars2plot_SUB = \
+        ["qv","T","u","v","ql","qi","qc","sfc_dwn_sw","sfc_up_sw",            \
+         "sfc_net_sw","sfc_dwn_lw", "u10m","v10m","hpbl","gflux",             \
+         "qv_force_tend","T_force_tend","u_force_tend","v_force_tend","w_ls", \
+         "u_g","v_g","dT_dt_rad_forc","h_advec_thil","h_advec_qt",            \
+         "v_advec_thil","v_advec_qt","T_s","lhf","shf","tprcp_inst",          \
+         "tprcp_rate_inst","t2m","q2m","ustar","tsfc","tau_u","tau_v","pwat", "max_cloud_fraction","toa_total_albedo","vert_int_lwp_mp", "vert_int_iwp_mp","vert_int_lwp_cf","vert_int_iwp_cf"]
+    vars2plot_DEBUG = \
+        ["qv","u10m"]
+#    vars2plot = ["ql"]
+#    vars2plot_ALL = ["ql"]
+#    vars2plot_SUB = ["ql"]
+#    vars2plot_DEBUG = ["ql"]
     # Which fields to plot? (default is subset of full fields)
     if vars2plt is None:
         vars2plot = vars2plot_SUB
