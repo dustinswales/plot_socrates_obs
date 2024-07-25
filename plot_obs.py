@@ -4,6 +4,8 @@ import numpy as np
 from netCDF4 import Dataset
 import argparse
 
+# touch file
+
 ###############################################################################
 # Command line arguments
 ###############################################################################
